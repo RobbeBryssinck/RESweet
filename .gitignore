@@ -1,0 +1,6 @@
+.vscode/
+
+*.gch
+
+testbins/
+build/
