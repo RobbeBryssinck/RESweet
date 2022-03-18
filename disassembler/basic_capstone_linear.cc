@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
   std::string fname = argv[1];
 
   Binary bin;
-  if (!load_binary(fname, &bin, Binary::Type::AUTO))
+  if (!LoadBinary(fname, &bin, Binary::Type::AUTO))
     return 1;
 
   if (Disassemble(&bin) < 0)
@@ -24,7 +24,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  unload_binary(&bin);
+  UnloadBinary(&bin);
 
   return 0;
 }

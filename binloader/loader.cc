@@ -230,12 +230,12 @@ static bool load_binary_bfd(std::string& fname, Binary* bin, Binary::Type type)
   return true;
 }
 
-bool load_binary(std::string& fname, Binary* bin, Binary::Type type)
+bool LoadBinary(std::string& fname, Binary* bin, Binary::Type type)
 {
   return load_binary_bfd(fname, bin, type);
 }
 
-void unload_binary(Binary* bin)
+void UnloadBinary(Binary* bin)
 {
   for (Section& section : bin->sections)
   {

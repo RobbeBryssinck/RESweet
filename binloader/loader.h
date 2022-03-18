@@ -98,7 +98,7 @@ public:
   std::vector<Symbol> symbols;
 };
 
-bool load_binary(std::string& fname, Binary* bin, Binary::Type type);
-void unload_binary(Binary* bin);
+bool LoadBinary(std::string& fname, Binary* bin, Binary::Type type);
+void UnloadBinary(Binary* bin);
 
 #endif // LOADER_H

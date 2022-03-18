@@ -11,7 +11,7 @@ int main(int argc, char* argv[])
   std::string fname = argv[1];
 
   Binary bin;
-  if (!load_binary(fname, &bin, Binary::Type::AUTO))
+  if (!LoadBinary(fname, &bin, Binary::Type::AUTO))
     return 1;
 
   printf("loaded binary '%s' %s/%s (%u bits) entry@0x%016jx\n",
@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  unload_binary(&bin);
+  UnloadBinary(&bin);
 
   return 0;
 }
