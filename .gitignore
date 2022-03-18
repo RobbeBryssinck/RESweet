@@ -1,6 +1,7 @@
 .vscode/
 
 *.gch
+*.o
 
 testbins/
 build/
