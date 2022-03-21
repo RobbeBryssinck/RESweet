@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string>
 #include <capstone/capstone.h>
-#include "../binloader/loader.h"
+#include <loader.h>
 
 bool Disassemble(Binary* bin);
 

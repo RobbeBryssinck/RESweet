@@ -22,6 +22,16 @@ project "BinLoader"
 
    files "Components/BinLoader/**"
 
+function includeCapstone()
+   includedirs "Vendor/capstone/include"
+end
+
+function linkCapstone()
+   filter "kind:not StaticLib"
+      links "capstone"
+   filter {}
+end
+
 project "UnderTheHood"
    kind "ConsoleApp"
    language "C++"
@@ -31,3 +41,6 @@ project "UnderTheHood"
 
    includedirs "Components/BinLoader"
    links "BinLoader"
+
+   includeCapstone()
+   linkCapstone()

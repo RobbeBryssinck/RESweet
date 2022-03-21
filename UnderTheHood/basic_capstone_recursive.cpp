@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 #include <capstone/capstone.h>
-#include "../binloader/loader.h"
+#include <loader.h>
 
 bool Disassemble(Binary* bin);
 void PrintInstruction(cs_insn* ins);
