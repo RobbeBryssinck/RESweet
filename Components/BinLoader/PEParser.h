@@ -3,6 +3,8 @@
 #include "BaseParser.h"
 
 #include <string>
+
+// TODO: this is gonna crap on linux obviously, just copy the structs from winnt.h
 #include <Windows.h>
 
 class PEParser : public BaseParser
