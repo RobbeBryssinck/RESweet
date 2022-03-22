@@ -1,3 +1,4 @@
+/*
 #include <stdio.h>
 #include <queue>
 #include <map>
@@ -12,7 +13,7 @@ bool IsCsCflowInstruction(cs_insn* ins);
 bool IsCsUnconditionalCflowInstruction(cs_insn* ins);
 uint64_t GetCsInstructionImmediateTarget(cs_insn* ins);
 
-int main(int argc, char *argv[])
+int main2(int argc, char *argv[])
 {
   if(argc < 2) {
     printf("Usage: %s <binary>\n", argv[0]);
@@ -195,3 +196,4 @@ uint64_t GetCsInstructionImmediateTarget(cs_insn* ins)
 
   return 0;
 }
+*/

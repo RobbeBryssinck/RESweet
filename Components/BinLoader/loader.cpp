@@ -1,6 +1,7 @@
 #include "loader.h"
 
 #include <capstone/capstone.h>
+/*
 #include <bfd.h>
 
 static bfd* open_bfd(std::string& fname)
@@ -243,3 +244,4 @@ void UnloadBinary(Binary* bin)
       free(section.bytes);
   }
 }
+*/

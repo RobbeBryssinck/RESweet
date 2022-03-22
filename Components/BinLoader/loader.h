@@ -1,5 +1,4 @@
-#ifndef LOADER_H
-#define LOADER_H
+#pragma once
 
 #include <stdint.h>
 #include <string>
@@ -98,7 +97,9 @@ public:
   std::vector<Symbol> symbols;
 };
 
-bool LoadBinary(std::string& fname, Binary* bin, Binary::Type type);
-void UnloadBinary(Binary* bin);
-
-#endif // LOADER_H
+bool LoadBinary(std::string& fname, Binary* bin, Binary::Type type)
+{
+  return false;
+}
+void UnloadBinary(Binary* bin)
+{}
