@@ -31,5 +31,5 @@ void PEParser::ReadOptionalHeader()
   if (is64Bit)
     Read(optionalHeader64);
   else
-    Read(optionalHeader);
+    Read(optionalHeader32);
 }

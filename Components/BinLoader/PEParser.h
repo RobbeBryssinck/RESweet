@@ -32,6 +32,8 @@ private:
   PE::dos_header dosHeader{};
   uint32_t signature{};
   PE::coff_file_header peHeader{};
-  PE::pe32_header optionalHeader{};
-  PE::pe32plus_header optionalHeader64{};
+  union {
+    PE::pe32_header optionalHeader32;
+    PE::pe32plus_header optionalHeader64{};
+  };
 };
