@@ -188,5 +188,117 @@ struct debug_directory
 
 } // namespace PE
 
+namespace ELF
+{
+
+// e_ident size and indices.
+enum {
+  EI_MAG0 = 0,       // File identification index.
+  EI_MAG1 = 1,       // File identification index.
+  EI_MAG2 = 2,       // File identification index.
+  EI_MAG3 = 3,       // File identification index.
+  EI_CLASS = 4,      // File class.
+  EI_DATA = 5,       // Data encoding.
+  EI_VERSION = 6,    // File version.
+  EI_OSABI = 7,      // OS/ABI identification.
+  EI_ABIVERSION = 8, // ABI version.
+  EI_PAD = 9,        // Start of padding bytes.
+  EI_NIDENT = 16     // Number of bytes in e_ident.
+};
+
+enum {
+  ELFCLASSNONE = 0,
+  ELFCLASS32 = 1, // 32-bit object file
+  ELFCLASS64 = 2  // 64-bit object file
+};
+
+struct Elf32_Ehdr
+{
+  unsigned char e_ident[EI_NIDENT]; // ELF Identification bytes
+  uint16_t e_type;                // Type of file (see ET_* below)
+  uint16_t e_machine;   // Required architecture for this file (see EM_*)
+  uint32_t e_version;   // Must be equal to 1
+  uint32_t e_entry;     // Address to jump to in order to start program
+  uint32_t e_phoff;      // Program header table's file offset, in bytes
+  uint32_t e_shoff;      // Section header table's file offset, in bytes
+  uint32_t e_flags;     // Processor-specific flags
+  uint16_t e_ehsize;    // Size of ELF header, in bytes
+  uint16_t e_phentsize; // Size of an entry in the program header table
+  uint16_t e_phnum;     // Number of entries in the program header table
+  uint16_t e_shentsize; // Size of an entry in the section header table
+  uint16_t e_shnum;     // Number of entries in the section header table
+  uint16_t e_shstrndx;  // Sect hdr table index of sect name string table
+};
+
+struct Elf64_Ehdr
+{
+  unsigned char e_ident[EI_NIDENT];
+  uint16_t e_type;
+  uint16_t e_machine;
+  uint32_t e_version;
+  uint64_t e_entry;
+  uint64_t e_phoff;
+  uint64_t e_shoff;
+  uint32_t e_flags;
+  uint16_t e_ehsize;
+  uint16_t e_phentsize;
+  uint16_t e_phnum;
+  uint16_t e_shentsize;
+  uint16_t e_shnum;
+  uint16_t e_shstrndx;
+};
+
+struct Elf32_Phdr
+{
+  uint32_t p_type;   // Type of segment
+  uint32_t p_offset;  // File offset where segment is located, in bytes
+  uint32_t p_vaddr;  // Virtual address of beginning of segment
+  uint32_t p_paddr;  // Physical address of beginning of segment (OS-specific)
+  uint32_t p_filesz; // Num. of bytes in file image of segment (may be zero)
+  uint32_t p_memsz;  // Num. of bytes in mem image of segment (may be zero)
+  uint32_t p_flags;  // Segment flags
+  uint32_t p_align;  // Segment alignment constraint
+};
+
+struct Elf64_Phdr
+{
+  uint32_t p_type;    // Type of segment
+  uint32_t p_flags;   // Segment flags
+  uint64_t p_offset;   // File offset where segment is located, in bytes
+  uint64_t p_vaddr;   // Virtual address of beginning of segment
+  uint64_t p_paddr;   // Physical addr of beginning of segment (OS-specific)
+  uint64_t p_filesz; // Num. of bytes in file image of segment (may be zero)
+  uint64_t p_memsz;  // Num. of bytes in mem image of segment (may be zero)
+  uint64_t p_align;  // Segment alignment constraint
+};
+
+struct Elf32_Shdr {
+  uint32_t sh_name;      // Section name (index into string table)
+  uint32_t sh_type;      // Section type (SHT_*)
+  uint32_t sh_flags;     // Section flags (SHF_*)
+  uint32_t sh_addr;      // Address where section is to be loaded
+  uint32_t sh_offset;     // File offset of section data, in bytes
+  uint32_t sh_size;      // Size of section, in bytes
+  uint32_t sh_link;      // Section type-specific header table index link
+  uint32_t sh_info;      // Section type-specific extra information
+  uint32_t sh_addralign; // Section address alignment
+  uint32_t sh_entsize;   // Size of records contained within the section
+};
+
+struct Elf64_Shdr {
+  uint32_t sh_name;
+  uint32_t sh_type;
+  uint64_t sh_flags;
+  uint64_t sh_addr;
+  uint64_t sh_offset;
+  uint64_t sh_size;
+  uint32_t sh_link;
+  uint32_t sh_info;
+  uint64_t sh_addralign;
+  uint64_t sh_entsize;
+};
+
+} // namespace ELF
+
 #pragma pack(pop)
 

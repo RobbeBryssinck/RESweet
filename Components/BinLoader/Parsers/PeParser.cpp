@@ -22,6 +22,8 @@ std::shared_ptr<Binary> PeParser::Parse()
     pBinary->entryPoint = optionalHeader32.AddressOfEntryPoint;
   }
 
+  // TODO: Section::offset
+
   pBinary->sections.reserve(peHeader.NumberOfSections);
 
   for (PE::coff_section& peSection : sections)
@@ -38,11 +40,10 @@ std::shared_ptr<Binary> PeParser::Parse()
       continue;
 
     section.pBytes = std::make_unique<uint8_t[]>(section.size);
+    // TODO: prolly shouldnt derive this from address (?)
     reader.position = section.address;
     reader.ReadImpl(section.pBytes.get(), section.size);
   }
-
-  // TODO: symbols
 
   return pBinary;
 }
@@ -77,7 +78,7 @@ void PeParser::ReadSectionHeaders()
   sections.clear();
   sections.reserve(peHeader.NumberOfSections);
 
-  for (uint32_t i = 0; i < peHeader.NumberOfSections; i++)
+  for (size_t i = 0; i < peHeader.NumberOfSections; i++)
   {
     PE::coff_section& section = sections.emplace_back();
     reader.Read(section);

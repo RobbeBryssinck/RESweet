@@ -16,10 +16,13 @@ public:
   {
     return ReadImpl(&apDestination, sizeof(T), aPeak);
   }
-
   bool ReadImpl(void* apDestination, const size_t acLength, bool aPeak = false);
+  std::string ReadString();
+
+  uint8_t* GetDataAtPosition();
 
   void Reset() { position = 0; }
+  void Advance(const size_t acCount) { position += acCount; }
 
   size_t size = 0;
   size_t position = 0;

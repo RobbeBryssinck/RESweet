@@ -39,6 +39,7 @@ public:
   std::string name = "";
   Type type = Type::NONE;
   uint64_t address = 0;
+  uint64_t offset = 0;
   uint64_t size = 0;
   std::unique_ptr<uint8_t[]> pBytes{};
 };

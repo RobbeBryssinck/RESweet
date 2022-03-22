@@ -38,3 +38,16 @@ bool Reader::ReadImpl(void* apDestination, const size_t acLength, bool aPeak)
 
   return true;
 }
+
+std::string Reader::ReadString()
+{
+  std::string string = std::string(reinterpret_cast<const char*>(GetDataAtPosition()));
+  Advance(string.size() + 1);
+  return string;
+}
+
+// don't abuse this, cause unique_ptr and all
+uint8_t* Reader::GetDataAtPosition()
+{
+  return pBuffer.get() + position;
+}

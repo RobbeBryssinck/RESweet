@@ -27,6 +27,7 @@ public:
     : reader(std::move(aReader))
   {}
 
+  virtual ~BaseParser() {};
   virtual std::shared_ptr<Binary> Parse() = 0;
 
 protected:
