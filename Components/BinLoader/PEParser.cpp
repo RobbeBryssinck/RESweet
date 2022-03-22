@@ -5,6 +5,7 @@ Binary PEParser::Parse()
   ReadDOSHeader();
   ReadPEHeader();
   ReadOptionalHeader();
+  ReadSectionHeaders();
 
   return Binary{};
 }
@@ -32,4 +33,16 @@ void PEParser::ReadOptionalHeader()
     Read(optionalHeader64);
   else
     Read(optionalHeader32);
+}
+
+void PEParser::ReadSectionHeaders()
+{
+  sections.clear();
+  sections.reserve(peHeader.NumberOfSections);
+
+  for (uint32_t i = 0; i < peHeader.NumberOfSections; i++)
+  {
+    PE::coff_section& section = sections.emplace_back();
+    Read(section);
+  }
 }

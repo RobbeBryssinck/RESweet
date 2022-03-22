@@ -26,6 +26,7 @@ private:
   void ReadDOSHeader();
   void ReadPEHeader();
   void ReadOptionalHeader();
+  void ReadSectionHeaders();
 
   bool is64Bit = false;
 
@@ -36,4 +37,5 @@ private:
     PE::pe32_header optionalHeader32;
     PE::pe32plus_header optionalHeader64{};
   };
+  std::vector<PE::coff_section> sections{};
 };
