@@ -18,12 +18,12 @@ public:
   Symbol() :
     type(Type::UKN),
     name(),
-    addr(0)
+    address(0)
   {}
 
   Type type;
   std::string name;
-  uint64_t addr;
+  uint64_t address;
 };
 
 class Section {

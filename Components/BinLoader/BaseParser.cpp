@@ -1,34 +1,55 @@
 #include "BaseParser.h"
 
+#include "Parsers/PEParser.h"
+#include "Parsers/ELFParser.h"
+
 #include <filesystem>
 #include <fstream>
 #include <spdlog/spdlog.h>
 
-BaseParser::BaseParser(const std::string& acFile)
+namespace Parsing
 {
-  size = std::filesystem::file_size(acFile);
 
-  std::ifstream file(acFile, std::ios::binary);
-  if (file.fail())
+Format GetFormat(Reader& aReader)
+{
+  uint32_t magic = 0;
+  aReader.Read(magic);
+  aReader.Reset();
+
+  switch (magic)
   {
-    spdlog::error("Failed to read file contents.");
-    return;
+  // TODO: delve further to check for 32/64 bit?
+  case 0x464C457F:
+    return Format::ELF;
+  case 0x00905A4D:
+    return Format::PE;
+  default:
+    return Format::UNSUPPORTED;
+  }
+}
+
+Binary ParseFile(const std::string& acFile)
+{
+  // TODO: either do bool Setup() or check for failure
+  Reader reader(acFile);
+
+  std::unique_ptr<BaseParser> pParser{};
+
+  switch (GetFormat(reader))
+  {
+  case Format::PE:
+    pParser = std::make_unique<PeParser>(std::move(reader));
+    break;
+  case Format::ELF:
+    pParser = std::make_unique<ElfParser>(std::move(reader));
+    break;
+  case Format::UNSUPPORTED:
+  default:
+    spdlog::error("Format not supported!");
+    return Binary{};
   }
 
-  pBuffer = std::make_unique<uint8_t[]>(size);
-
-  file.read(reinterpret_cast<char*>(pBuffer.get()), size);
+  return pParser->Parse();
 }
 
-bool BaseParser::ReadImpl(void* apDestination, const size_t acLength, bool aPeak)
-{
-  if (acLength + position > size)
-    return false;
-
-  std::memcpy(apDestination, pBuffer.get() + position, acLength);
-
-  if (!aPeak)
-    position += acLength;
-
-  return true;
-}
+} // namespace Parsing

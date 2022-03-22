@@ -1,6 +1,6 @@
 #include "ELFParser.h"
 
-Binary ELFParser::Parse()
+Binary ElfParser::Parse()
 {
   return Binary{};
 }

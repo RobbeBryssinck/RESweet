@@ -1,27 +1,34 @@
 #pragma once
 
-#include "loader.h"
-#include <memory>
+#include "Binary.h"
+#include "Reader.h"
+
+namespace Parsing
+{
+
+enum class Format
+{
+  UNSUPPORTED,
+  PE,
+  ELF
+};
+
+Format GetFormat(Reader& aReader);
+Binary ParseFile(const std::string& acFile);
+
+} // namespace Parsing
 
 class BaseParser
 {
 public:
+  BaseParser() = delete;
 
-  BaseParser(const std::string& acFile);
-
-protected:
-
-  template <class T>
-  bool Read(T& apDestination, bool aPeak = false)
-  {
-    return ReadImpl(&apDestination, sizeof(T), aPeak);
-  }
-
-  bool ReadImpl(void* apDestination, const size_t acLength, bool aPeak = false);
+  BaseParser(Reader&& aReader)
+    : reader(std::move(aReader))
+  {}
 
   virtual Binary Parse() = 0;
 
-  size_t size = 0;
-  size_t position = 0;
-  std::unique_ptr<uint8_t[]> pBuffer{};
+protected:
+  Reader reader;
 };

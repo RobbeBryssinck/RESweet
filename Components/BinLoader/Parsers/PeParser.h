@@ -1,16 +1,15 @@
 #pragma once
 
-#include "BaseParser.h"
-#include "FileFormats.h"
+#include "../BaseParser.h"
+#include "../FileFormats.h"
 
-#include <string>
-
-class PEParser : public BaseParser
+class PeParser : public BaseParser
 {
 public:
+  PeParser() = delete;
 
-  PEParser(const std::string& acFile)
-    : BaseParser(acFile)
+  PeParser(Reader&& aReader)
+    : BaseParser(std::move(aReader))
   {}
 
   Binary Parse() override;

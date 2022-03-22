@@ -2,7 +2,7 @@
 #include <spdlog/spdlog-inl.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/rotating_file_sink.h>
-#include <PEParser.h>
+#include <BaseParser.h>
 
 void InitializeLogger()
 {
@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
   InitializeLogger();
   spdlog::info("main()");
 
-  PEParser parser("test.exe");
-  parser.Parse();
+  Binary binary = Parsing::ParseFile("test.exe");
+
   return 0;
 }
