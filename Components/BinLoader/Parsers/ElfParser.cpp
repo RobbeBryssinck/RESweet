@@ -24,7 +24,7 @@ std::shared_ptr<Binary> ElfParser::Parse()
 
       Section& section = pBinary->sections.emplace_back();
       section.pBinary = pBinary;
-      section.name = GetSectionName64(elfSection.sh_name);
+      section.name = GetSectionName64(elfSection);
       // TODO: improve this
       section.type = (elfSection.sh_flags & 0x4) ? Section::Type::CODE : Section::Type::DATA;
       section.address = elfSection.sh_addr;
@@ -45,7 +45,7 @@ std::shared_ptr<Binary> ElfParser::Parse()
 
       Section& section = pBinary->sections.emplace_back();
       section.pBinary = pBinary;
-      section.name = GetSectionName32(elfSection.sh_name);
+      section.name = GetSectionName32(elfSection);
       section.type = (elfSection.sh_flags & 0x4) ? Section::Type::CODE : Section::Type::DATA;
       section.address = elfSection.sh_addr;
       section.size = elfSection.sh_size;
@@ -78,7 +78,7 @@ void ElfParser::ReadElfHeader()
   if (is64Bit)
   {
     reader.Read(elfHeader64);
-    // TODO: this set position probably shouldn't be necessary,
+    // this set position probably shouldn't be necessary,
     // since the program header should come right after the ELF header
     reader.position = elfHeader64.e_phoff;
     reader.Read(programHeader64);
@@ -120,18 +120,24 @@ void ElfParser::ReadSectionHeaders()
   }
 }
 
-std::string ElfParser::GetSectionName32(uint32_t aOffset)
+std::string ElfParser::GetSectionName32(ELF::Elf32_Shdr& aSection)
 {
+  if (elfHeader32.e_shstrndx == 0)
+    return "";
+
   ELF::Elf32_Shdr& section = sections32[elfHeader32.e_shstrndx];
   reader.position = section.sh_offset;
-  reader.position += aOffset;
+  reader.position += aSection.sh_name;
   return reader.ReadString();
 }
 
-std::string ElfParser::GetSectionName64(uint64_t aOffset)
+std::string ElfParser::GetSectionName64(ELF::Elf64_Shdr& aSection)
 {
+  if (elfHeader32.e_shstrndx == 0)
+    return "";
+
   ELF::Elf64_Shdr& section = sections64[elfHeader64.e_shstrndx];
   reader.position = section.sh_offset;
-  reader.position += aOffset;
+  reader.position += aSection.sh_name;
   return reader.ReadString();
 }

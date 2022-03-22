@@ -23,8 +23,8 @@ private:
   void ReadElfHeader();
   void ReadSectionHeaders();
 
-  std::string GetSectionName32(uint32_t aOffset);
-  std::string GetSectionName64(uint64_t aOffset);
+  std::string GetSectionName32(ELF::Elf32_Shdr& aSection);
+  std::string GetSectionName64(ELF::Elf64_Shdr& aSection);
 
   bool is64Bit = false;
 

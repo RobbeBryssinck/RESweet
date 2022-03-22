@@ -272,7 +272,8 @@ struct Elf64_Phdr
   uint64_t p_align;  // Segment alignment constraint
 };
 
-struct Elf32_Shdr {
+struct Elf32_Shdr
+{
   uint32_t sh_name;      // Section name (index into string table)
   uint32_t sh_type;      // Section type (SHT_*)
   uint32_t sh_flags;     // Section flags (SHF_*)
@@ -285,7 +286,8 @@ struct Elf32_Shdr {
   uint32_t sh_entsize;   // Size of records contained within the section
 };
 
-struct Elf64_Shdr {
+struct Elf64_Shdr
+{
   uint32_t sh_name;
   uint32_t sh_type;
   uint64_t sh_flags;
@@ -296,6 +298,26 @@ struct Elf64_Shdr {
   uint32_t sh_info;
   uint64_t sh_addralign;
   uint64_t sh_entsize;
+};
+
+struct Elf32_Sym
+{
+  uint32_t st_name;     // Symbol name (index into string table)
+  uint32_t st_value;    // Value or address associated with the symbol
+  uint32_t st_size;     // Size of the symbol
+  unsigned char st_info;  // Symbol's type and binding attributes
+  unsigned char st_other; // Must be zero; reserved
+  uint16_t st_shndx;    // Which section (header table index) it's defined in
+};
+
+struct Elf64_Sym
+{
+  uint32_t st_name;     // Symbol name (index into string table)
+  unsigned char st_info;  // Symbol's type and binding attributes
+  unsigned char st_other; // Must be zero; reserved
+  uint16_t st_shndx;    // Which section (header tbl index) it's defined in
+  uint64_t st_value;    // Value or address associated with the symbol
+  uint64_t st_size;    // Size of the symbol
 };
 
 } // namespace ELF
