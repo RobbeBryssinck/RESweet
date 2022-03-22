@@ -1,3 +1,4 @@
+/*
 #include <stdio.h>
 #include <string>
 #include <capstone/capstone.h>
@@ -99,3 +100,4 @@ bool Disassemble(Binary* bin)
 
   return true;
 }
+*/

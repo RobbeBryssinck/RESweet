@@ -3,7 +3,7 @@ project "BinLoader"
    language "C++"
    targetdir "bin/%{cfg.buildcfg}"
 
-   files {"**.h", "**.cpp"}
+   files {"**.h", "**.cpp", "**.inl"}
 
    includedirs 
    {

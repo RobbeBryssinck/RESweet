@@ -1,12 +1,21 @@
 #pragma once
 
+#include "BaseParser.h"
+
 #include <string>
+#include <Windows.h>
 
-class PEParser
+class PEParser : public BaseParser
 {
-	PEParser(const std::string& acFile);
+public:
 
-	size_t size = 0;
-	size_t position = 0;
-	uint8_t* pBuffer = nullptr;
+  PEParser(const std::string& acFile)
+    : BaseParser(acFile)
+  {}
+
+  Binary Parse() override;
+
+private:
+
+  _IMAGE_DOS_HEADER dosHeader{};
 };
