@@ -15,14 +15,9 @@ BaseParser::BaseParser(const std::string& acFile)
     return;
   }
 
-  pBuffer = new uint8_t[size];
+  pBuffer = std::make_unique<uint8_t[]>(size);
 
-  file.read(reinterpret_cast<char*>(pBuffer), size);
-}
-
-BaseParser::~BaseParser()
-{
-  delete[] pBuffer;
+  file.read(reinterpret_cast<char*>(pBuffer.get()), size);
 }
 
 bool BaseParser::ReadImpl(void* apDestination, const size_t acLength, bool aPeak)
@@ -30,7 +25,7 @@ bool BaseParser::ReadImpl(void* apDestination, const size_t acLength, bool aPeak
   if (acLength + position > size)
     return false;
 
-  std::memcpy(apDestination, pBuffer + position, acLength);
+  std::memcpy(apDestination, pBuffer.get() + position, acLength);
   if (!aPeak)
     position += acLength;
 

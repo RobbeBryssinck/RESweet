@@ -1,13 +1,13 @@
 #pragma once
 
 #include "loader.h"
+#include <memory>
 
 class BaseParser
 {
 public:
 
   BaseParser(const std::string& acFile);
-  ~BaseParser();
 
 protected:
 
@@ -23,5 +23,5 @@ protected:
 
   size_t size = 0;
   size_t position = 0;
-  uint8_t* pBuffer = nullptr;
+  std::unique_ptr<uint8_t[]> pBuffer{};
 };
