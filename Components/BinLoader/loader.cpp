@@ -1,6 +1,5 @@
 #include "loader.h"
 
-#include <capstone/capstone.h>
 /*
 #include <bfd.h>
 
