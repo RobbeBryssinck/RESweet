@@ -1,6 +1,6 @@
 #include "ELFParser.h"
 
-Binary ElfParser::Parse()
+std::shared_ptr<Binary> ElfParser::Parse()
 {
-  return Binary{};
+  return std::make_shared<Binary>();
 }

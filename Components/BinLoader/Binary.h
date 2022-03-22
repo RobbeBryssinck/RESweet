@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <memory>
+#include <optional>
 
 class Binary;
 class Section;
@@ -11,19 +13,13 @@ class Symbol;
 class Symbol {
 public:
   enum class Type {
-    UKN = 0,
+    NONE = 0,
     FUNC = 1,
   };
 
-  Symbol() :
-    type(Type::UKN),
-    name(),
-    address(0)
-  {}
-
-  Type type;
-  std::string name;
-  uint64_t address;
+  Type type = Type::NONE;
+  std::string name = "";
+  uint64_t address = 0;
 };
 
 class Section {
@@ -34,31 +30,23 @@ public:
     DATA = 2,
   };
 
-  Section() :
-    binary(nullptr),
-    type(Type::NONE),
-    vma(0),
-    size(0),
-    bytes(nullptr)
-  {}
-
-  bool Contains(uint64_t addr) const 
+  bool Contains(uint64_t aAddress) const 
   {
-    return (addr >= vma) && (addr - vma < size);
+    return (aAddress >= address) && (aAddress - address < size);
   }
 
-  Binary* binary;
-  std::string name;
-  Type type;
-  uint64_t vma;
-  uint64_t size;
-  uint8_t* bytes;
+  std::shared_ptr<Binary> pBinary{};
+  std::string name = "";
+  Type type = Type::NONE;
+  uint64_t address = 0;
+  uint64_t size = 0;
+  std::unique_ptr<uint8_t[]> pBytes{};
 };
 
 class Binary {
 public:
   enum class Type {
-    AUTO = 0,
+    NONE = 0,
     ELF = 1,
     PE = 2,
   };
@@ -66,33 +54,24 @@ public:
   enum class Arch {
     NONE = 0,
     X86 = 1,
+    X64 = 2,
   };
 
-  Binary() :
-    type(Type::AUTO),
-    arch(Arch::NONE),
-    bits(0),
-    entry(0)
-  {}
-
-  Section* GetTextSection()
+  std::optional<Section*> GetTextSection()
   {
     for (Section& section : sections)
     {
       if (section.name == ".text")
-        return &section;
+        return { &section };
     }
 
-    return nullptr;
+    return std::nullopt;
   }
 
-  std::string filename;
-  Type type;
-  std::string type_str;
-  Arch arch;
-  std::string arch_str;
-  unsigned bits;
-  uint64_t entry;
-  std::vector<Section> sections;
-  std::vector<Symbol> symbols;
+  std::string filename = "";
+  Type type = Type::NONE;
+  Arch arch = Arch::NONE;
+  uint64_t entryPoint = 0;
+  std::vector<Section> sections{};
+  std::vector<Symbol> symbols{};
 };

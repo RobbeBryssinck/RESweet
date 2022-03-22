@@ -1,13 +1,50 @@
 #include "PeParser.h"
 
-Binary PeParser::Parse()
+std::shared_ptr<Binary> PeParser::Parse()
 {
   ReadDOSHeader();
   ReadPEHeader();
   ReadOptionalHeader();
   ReadSectionHeaders();
 
-  return Binary{};
+  std::shared_ptr<Binary> pBinary = std::make_shared<Binary>();
+
+  pBinary->type = Binary::Type::PE;
+
+  if (is64Bit)
+  {
+    pBinary->arch = Binary::Arch::X64;
+    pBinary->entryPoint = optionalHeader64.AddressOfEntryPoint;
+  }
+  else
+  {
+    pBinary->arch = Binary::Arch::X86;
+    pBinary->entryPoint = optionalHeader32.AddressOfEntryPoint;
+  }
+
+  pBinary->sections.reserve(peHeader.NumberOfSections);
+
+  for (PE::coff_section& peSection : sections)
+  {
+    Section& section = pBinary->sections.emplace_back();
+    section.pBinary = pBinary;
+    section.name = peSection.Name;
+    // TODO: revisit this, this might have to be more comprehensive to catch everything
+    section.type = peSection.IsCode() ? Section::Type::CODE : Section::Type::DATA;
+    section.address = peSection.PointerToRawData;
+    section.size = peSection.SizeOfRawData;
+
+    if (section.size == 0)
+      continue;
+
+    section.pBytes = std::make_unique<uint8_t[]>(section.size);
+    reader.position = section.address;
+    reader.ReadImpl(section.pBytes.get(), section.size);
+  }
+
+  // TODO: symbols
+
+  return pBinary;
 }
 
 void PeParser::ReadDOSHeader()

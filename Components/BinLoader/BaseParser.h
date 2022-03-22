@@ -14,7 +14,7 @@ enum class Format
 };
 
 Format GetFormat(Reader& aReader);
-Binary ParseFile(const std::string& acFile);
+std::shared_ptr<Binary> ParseFile(const std::string& acFile);
 
 } // namespace Parsing
 
@@ -27,7 +27,7 @@ public:
     : reader(std::move(aReader))
   {}
 
-  virtual Binary Parse() = 0;
+  virtual std::shared_ptr<Binary> Parse() = 0;
 
 protected:
   Reader reader;

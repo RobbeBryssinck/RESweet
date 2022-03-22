@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 
+// TODO: this class should really be in it's own thing, maybe a Core component?
 class Reader
 {
 public:

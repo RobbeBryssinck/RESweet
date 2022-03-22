@@ -11,7 +11,7 @@ public:
     : BaseParser(std::move(aReader))
   {}
 
-  Binary Parse() override;
+  std::shared_ptr<Binary> Parse() override;
 
 private:
 

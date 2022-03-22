@@ -134,6 +134,11 @@ struct pe32plus_header
 
 struct coff_section
 {
+  enum Flags
+  {
+    IMAGE_SCN_CNT_CODE = 0x20,
+  };
+
   char     Name[CoffData::NameSize];
   uint32_t VirtualSize;
   uint32_t VirtualAddress;
@@ -144,6 +149,11 @@ struct coff_section
   uint16_t NumberOfRelocations;
   uint16_t NumberOfLinenumbers;
   uint32_t Characteristics;
+
+  bool IsCode() const
+  {
+    return Characteristics & IMAGE_SCN_CNT_CODE;
+  }
 };
 
 struct coff_resource_dir_table 

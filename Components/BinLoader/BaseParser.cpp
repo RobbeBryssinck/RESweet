@@ -28,7 +28,7 @@ Format GetFormat(Reader& aReader)
   }
 }
 
-Binary ParseFile(const std::string& acFile)
+std::shared_ptr<Binary> ParseFile(const std::string& acFile)
 {
   // TODO: either do bool Setup() or check for failure
   Reader reader(acFile);
@@ -46,10 +46,14 @@ Binary ParseFile(const std::string& acFile)
   case Format::UNSUPPORTED:
   default:
     spdlog::error("Format not supported!");
-    return Binary{};
+    return std::make_shared<Binary>();
   }
 
-  return pParser->Parse();
+  std::shared_ptr<Binary> pBinary = pParser->Parse();
+
+  pBinary->filename = acFile;
+
+  return pBinary;
 }
 
 } // namespace Parsing
