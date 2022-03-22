@@ -26,6 +26,7 @@ bool BaseParser::ReadImpl(void* apDestination, const size_t acLength, bool aPeak
     return false;
 
   std::memcpy(apDestination, pBuffer.get() + position, acLength);
+
   if (!aPeak)
     position += acLength;
 

@@ -11,25 +11,25 @@ Binary PEParser::Parse()
 
 void PEParser::ReadDOSHeader()
 {
-  Read(&dosHeader);
+  Read(dosHeader);
 }
 
 void PEParser::ReadPEHeader()
 {
   position = dosHeader.e_lfanew;
-  Read(&signature);
-  Read(&peHeader);
+  Read(signature);
+  Read(peHeader);
 }
 
 void PEParser::ReadOptionalHeader()
 {
   WORD magic = 0;
-  Read(&magic, true);
+  Read(magic, true);
 
   is64Bit = magic == OptionalMagic::PE32PLUS;
 
   if (is64Bit)
-    Read(&optionalHeader64);
+    Read(optionalHeader64);
   else
-    Read(&optionalHeader);
+    Read(optionalHeader);
 }

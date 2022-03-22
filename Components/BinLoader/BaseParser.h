@@ -12,9 +12,9 @@ public:
 protected:
 
   template <class T>
-  bool Read(T* apDestination, bool aPeak = false)
+  bool Read(T& apDestination, bool aPeak = false)
   {
-    return ReadImpl(apDestination, sizeof(T), aPeak);
+    return ReadImpl(&apDestination, sizeof(T), aPeak);
   }
 
   bool ReadImpl(void* apDestination, const size_t acLength, bool aPeak = false);
