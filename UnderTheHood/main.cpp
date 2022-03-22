@@ -15,6 +15,7 @@ void InitializeLogger()
 int main(int argc, char* argv[])
 {
   InitializeLogger();
+  spdlog::info("main()");
 
   PEParser parser("test.exe");
   parser.Parse();

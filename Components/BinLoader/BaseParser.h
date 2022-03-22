@@ -12,18 +12,12 @@ public:
 protected:
 
   template <class T>
-  bool Read(T* apDestination)
+  bool Read(T* apDestination, bool aPeak = false)
   {
-    const size_t cLength = sizeof(T);
-
-    if (cLength + position > size)
-      return false;
-
-    std::memcpy(apDestination, pBuffer + position, cLength);
-    position += cLength;
-
-    return true;
+    return ReadImpl(apDestination, sizeof(T), aPeak);
   }
+
+  bool ReadImpl(void* apDestination, const size_t acLength, bool aPeak = false);
 
   virtual Binary Parse() = 0;
 

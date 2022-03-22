@@ -96,12 +96,3 @@ public:
   std::vector<Section> sections;
   std::vector<Symbol> symbols;
 };
-
-/*
-bool LoadBinary(std::string& fname, Binary* bin, Binary::Type type)
-{
-  return false;
-}
-void UnloadBinary(Binary* bin)
-{}
-*/
