@@ -1,11 +1,9 @@
 #pragma once
 
 #include "BaseParser.h"
+#include "FileFormats.h"
 
 #include <string>
-
-// TODO: this is gonna crap on linux obviously, just copy the structs from winnt.h
-#include <Windows.h>
 
 class PEParser : public BaseParser
 {
@@ -31,11 +29,9 @@ private:
 
   bool is64Bit = false;
 
-  _IMAGE_DOS_HEADER dosHeader{};
-
+  PE::dos_header dosHeader{};
   uint32_t signature{};
-  _IMAGE_FILE_HEADER peHeader{};
-
-  _IMAGE_OPTIONAL_HEADER optionalHeader{};
-  _IMAGE_OPTIONAL_HEADER64 optionalHeader64{};
+  PE::coff_file_header peHeader{};
+  PE::pe32_header optionalHeader{};
+  PE::pe32plus_header optionalHeader64{};
 };

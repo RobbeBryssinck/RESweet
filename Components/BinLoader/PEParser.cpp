@@ -16,14 +16,14 @@ void PEParser::ReadDOSHeader()
 
 void PEParser::ReadPEHeader()
 {
-  position = dosHeader.e_lfanew;
+  position = dosHeader.AddressOfNewExeHeader;
   Read(signature);
   Read(peHeader);
 }
 
 void PEParser::ReadOptionalHeader()
 {
-  WORD magic = 0;
+  uint16_t magic = 0;
   Read(magic, true);
 
   is64Bit = magic == OptionalMagic::PE32PLUS;
