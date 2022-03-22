@@ -19,6 +19,9 @@ std::shared_ptr<Binary> ElfParser::Parse()
     pBinary->sections.reserve(sections64.size());
     for (ELF::Elf64_Shdr& elfSection : sections64)
     {
+      if (elfSection.sh_size == 0)
+        continue;
+
       Section& section = pBinary->sections.emplace_back();
       section.pBinary = pBinary;
       section.name = GetSectionName64(elfSection.sh_name);
@@ -37,6 +40,9 @@ std::shared_ptr<Binary> ElfParser::Parse()
     pBinary->sections.reserve(sections32.size());
     for (ELF::Elf32_Shdr& elfSection : sections32)
     {
+      if (elfSection.sh_size == 0)
+        continue;
+
       Section& section = pBinary->sections.emplace_back();
       section.pBinary = pBinary;
       section.name = GetSectionName32(elfSection.sh_name);
