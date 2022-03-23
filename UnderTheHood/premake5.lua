@@ -20,10 +20,12 @@ project "UnderTheHood"
 
    includedirs 
    {
-      "../Components/BinLoader",
+      "../Components",
       "../Vendor/spdlog/include"
    }
+
    links "BinLoader"
+   links "UI"
 
    includeCapstone()
    linkCapstone()

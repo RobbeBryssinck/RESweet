@@ -3,7 +3,7 @@
 #include <capstone/capstone.h>
 #include <spdlog/spdlog.h>
 
-#include <BaseParser.h>
+#include <BinLoader/BaseParser.h>
 
 namespace Disassembly
 {

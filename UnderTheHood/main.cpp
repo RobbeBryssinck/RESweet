@@ -2,7 +2,7 @@
 #include <spdlog/spdlog-inl.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/rotating_file_sink.h>
-#include <BaseParser.h>
+#include <BinLoader/BaseParser.h>
 #include <iostream>
 
 #include "Core/Disassembly.h"
