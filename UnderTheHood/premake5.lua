@@ -10,6 +10,7 @@ function linkCapstone()
    filter {}
 end
 
+group("Core")
 project "UnderTheHood"
    kind "ConsoleApp"
    language "C++"

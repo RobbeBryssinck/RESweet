@@ -5,7 +5,7 @@
 #include <BaseParser.h>
 #include <iostream>
 
-#include "Disassembly.h"
+#include "Core/Disassembly.h"
 
 void InitializeLogger()
 {

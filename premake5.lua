@@ -17,5 +17,5 @@ workspace "RESweet"
    targetdir ("Build/Bin/%{prj.name}/%{cfg.longname}")
    objdir ("Build/Obj/%{prj.name}/%{cfg.longname}")
 
-include("Components/BinLoader")
+include("Components")
 include("UnderTheHood")
