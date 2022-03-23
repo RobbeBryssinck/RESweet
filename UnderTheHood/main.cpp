@@ -2,8 +2,10 @@
 #include <spdlog/spdlog-inl.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/rotating_file_sink.h>
-#include <capstone/capstone.h>
 #include <BaseParser.h>
+#include <iostream>
+
+#include "Disassembly.h"
 
 void InitializeLogger()
 {
@@ -13,113 +15,24 @@ void InitializeLogger()
   set_default_logger(logger);
 }
 
-struct CapstoneData
-{
-  static std::optional<CapstoneData> BinaryToCapstone(std::shared_ptr<Binary> apBinary)
-  {
-    std::optional<CapstoneData> result = CapstoneData();
-
-    switch (apBinary->architecture)
-    {
-    case Binary::Architecture::X86:
-      result->architecture = CS_ARCH_X86;
-      break;
-    case Binary::Architecture::NONE:
-      spdlog::error("No architecture selected");
-      return std::nullopt;
-      break;
-    default:
-      spdlog::error("No matching capstone architecture found");
-      return std::nullopt;
-    }
-
-    switch (apBinary->mode)
-    {
-    case Binary::Mode::BITS_32:
-      result->mode = CS_MODE_32;
-      break;
-    case Binary::Mode::BITS_64:
-      result->mode = CS_MODE_64;
-      break;
-    case Binary::Mode::NONE:
-      spdlog::error("No mode selected");
-      return std::nullopt;
-      break;
-    default:
-      spdlog::error("No matching capstone mode found");
-      return std::nullopt;
-    }
-
-    return result;
-  }
-
-  cs_arch architecture;
-  cs_mode mode;
-};
-
-bool DisassembleLinear(std::shared_ptr<Binary> apBinary)
-{
-  Section* pText = apBinary->GetTextSection();
-  if (!pText)
-  {
-    spdlog::warn("Could not find text section in binary.");
-    return false;
-  }
-
-  // TODO: ErrOk?
-  std::optional<CapstoneData> capstoneData = CapstoneData::BinaryToCapstone(apBinary);
-  if (!capstoneData)
-  {
-    spdlog::error("Failed to convert binary data to capstone data");
-    return false;
-  }
-
-  csh csHandle;
-  if (cs_open(capstoneData->architecture, capstoneData->mode, &csHandle) != CS_ERR_OK)
-  {
-    spdlog::error("Failed to initialize capstone handle");
-    return false;
-  }
-
-  cs_insn* instructions;
-  size_t instructionCount = cs_disasm(csHandle, pText->pBytes.get(), pText->size, pText->address, 0, &instructions);
-  if (instructionCount == 0)
-  {
-    spdlog::error("Disassembly failed, error: {}", cs_strerror(cs_errno(csHandle)));
-    return false;
-  }
-
-  for (size_t i = 0; i < instructionCount; i++)
-  {
-    cs_insn& instruction = instructions[i];
-    if (instruction.id == X86_INS_INT3)
-      continue;
-
-    printf("0x%016jx: ", instruction.address);
-    for (size_t j = 0; j < 16; j++)
-    {
-      if (j < instruction.size)
-        printf("%02x ", instruction.bytes[j]);
-      else
-        printf("   ");
-    }
-
-    printf("%-12s %s\n", instruction.mnemonic, instruction.op_str);
-  }
-
-  cs_free(instructions, instructionCount);
-  cs_close(&csHandle);
-
-  return false;
-}
+#define RE_USE_DEFAULT_FILE
 
 int main(int argc, char* argv[])
 {
   InitializeLogger();
-  spdlog::info("main()");
 
-  std::shared_ptr<Binary> pBinary = Parsing::ParseFile("test.exe");
-  //std::shared_ptr<Binary> pBinary = Parsing::ParseFile("a.out");
+  std::string file = "";
+
+#ifndef RE_USE_DEFAULT_FILE
+  std::cout << "What file would you like to disassemble?" << std::endl;
+  std::cin >> file;
+#endif
+
+#ifdef RE_USE_DEFAULT_FILE
+  file = "a.out";
+#endif
+
+  std::shared_ptr<Binary> pBinary = Parsing::ParseFile(std::move(file));
   if (!pBinary)
   {
     spdlog::error("Failed to load binary");
@@ -128,7 +41,7 @@ int main(int argc, char* argv[])
 
   spdlog::info("Binary name: {}, sections: {}, entry point is at 0x{:X}", pBinary->filename, pBinary->sections.size(), pBinary->entryPoint);
 
-  DisassembleLinear(pBinary);
+  Disassembly::DisassembleLinear(pBinary);
 
   return 0;
 }
