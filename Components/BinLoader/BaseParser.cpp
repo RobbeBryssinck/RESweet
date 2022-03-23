@@ -18,7 +18,6 @@ Format GetFormat(Reader& aReader)
 
   switch (magic)
   {
-  // TODO: delve further to check for 32/64 bit?
   case 0x464C457F:
     return Format::ELF;
   case 0x00905A4D:

@@ -52,26 +52,32 @@ public:
     PE = 2,
   };
 
-  enum class Arch {
+  enum class Architecture {
     NONE = 0,
     X86 = 1,
-    X64 = 2,
   };
 
-  std::optional<Section*> GetTextSection()
+  enum class Mode {
+    NONE = 0,
+    BITS_32 = 1,
+    BITS_64 = 2,
+  };
+
+  Section* GetTextSection()
   {
     for (Section& section : sections)
     {
       if (section.name == ".text")
-        return { &section };
+        return &section;
     }
 
-    return std::nullopt;
+    return nullptr;
   }
 
   std::string filename = "";
   Type type = Type::NONE;
-  Arch arch = Arch::NONE;
+  Architecture architecture = Architecture::NONE;
+  Mode mode = Mode::NONE;
   uint64_t entryPoint = 0;
   std::vector<Section> sections{};
   std::vector<Symbol> symbols{};

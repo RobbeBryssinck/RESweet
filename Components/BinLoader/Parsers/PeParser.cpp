@@ -10,15 +10,16 @@ std::shared_ptr<Binary> PeParser::Parse()
   std::shared_ptr<Binary> pBinary = std::make_shared<Binary>();
 
   pBinary->type = Binary::Type::PE;
+  pBinary->architecture = Binary::Architecture::X86;
 
   if (is64Bit)
   {
-    pBinary->arch = Binary::Arch::X64;
+    pBinary->mode = Binary::Mode::BITS_64;
     pBinary->entryPoint = optionalHeader64.AddressOfEntryPoint;
   }
   else
   {
-    pBinary->arch = Binary::Arch::X86;
+    pBinary->mode = Binary::Mode::BITS_32;
     pBinary->entryPoint = optionalHeader32.AddressOfEntryPoint;
   }
 

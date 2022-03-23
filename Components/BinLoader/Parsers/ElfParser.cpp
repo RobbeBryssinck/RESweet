@@ -11,10 +11,11 @@ std::shared_ptr<Binary> ElfParser::Parse()
   std::shared_ptr<Binary> pBinary = std::make_shared<Binary>();
 
   pBinary->type = Binary::Type::ELF;
+  pBinary->architecture = Binary::Architecture::X86;
 
   if (is64Bit)
   {
-    pBinary->arch = Binary::Arch::X64;
+    pBinary->mode = Binary::Mode::BITS_64;
     pBinary->entryPoint = elfHeader64.e_entry;
 
     pBinary->sections.reserve(sections64.size());
@@ -27,7 +28,7 @@ std::shared_ptr<Binary> ElfParser::Parse()
   }
   else
   {
-    pBinary->arch = Binary::Arch::X86;
+    pBinary->mode = Binary::Mode::BITS_32;
     pBinary->entryPoint = elfHeader32.e_entry;
 
     pBinary->sections.reserve(sections32.size());
