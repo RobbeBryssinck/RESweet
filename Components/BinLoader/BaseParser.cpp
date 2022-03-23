@@ -1,7 +1,7 @@
 #include "BaseParser.h"
 
-#include "Parsers/PEParser.h"
-#include "Parsers/ELFParser.h"
+#include "Parsers/PeParser.h"
+#include "Parsers/ElfParser.h"
 
 #include <filesystem>
 #include <fstream>
