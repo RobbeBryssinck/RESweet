@@ -18,22 +18,11 @@ std::shared_ptr<Binary> ElfParser::Parse()
     pBinary->entryPoint = elfHeader64.e_entry;
 
     pBinary->sections.reserve(sections64.size());
-    for (ELF::Elf64_Shdr& elfSection : sections64)
+    for (const ELF::Elf64_Shdr& elfSection : sections64)
     {
-      if (elfSection.sh_size == 0)
-        continue;
-
-      Section& section = pBinary->sections.emplace_back();
-      section.pBinary = pBinary;
-      section.name = GetSectionName64(elfSection);
-      // TODO: improve this
-      section.type = (elfSection.sh_flags & 0x4) ? Section::Type::CODE : Section::Type::DATA;
-      section.address = elfSection.sh_addr;
-      section.size = elfSection.sh_size;
-      section.offset = elfSection.sh_offset;
-
-      if (section.name == ".symtab")
-        ReadSymbols(section.offset, section.size);
+      std::optional<Section*> section = InitSection(pBinary, elfSection);
+      if (section)
+        (*section)->name = GetSectionName64(elfSection);
     }
   }
   else
@@ -42,22 +31,11 @@ std::shared_ptr<Binary> ElfParser::Parse()
     pBinary->entryPoint = elfHeader32.e_entry;
 
     pBinary->sections.reserve(sections32.size());
-    for (ELF::Elf32_Shdr& elfSection : sections32)
+    for (const ELF::Elf32_Shdr& elfSection : sections32)
     {
-      // TODO: reconsider this check
-      if (elfSection.sh_size == 0)
-        continue;
-
-      Section& section = pBinary->sections.emplace_back();
-      section.pBinary = pBinary;
-      section.name = GetSectionName32(elfSection);
-      section.type = (elfSection.sh_flags & 0x4) ? Section::Type::CODE : Section::Type::DATA;
-      section.address = elfSection.sh_addr;
-      section.size = elfSection.sh_size;
-      section.offset = elfSection.sh_offset;
-
-      if (section.name == ".symtab")
-        ReadSymbols(section.offset, section.size);
+      std::optional<Section*> section = InitSection(pBinary, elfSection);
+      if (section)
+        (*section)->name = GetSectionName32(elfSection);
     }
   }
 
@@ -69,42 +47,18 @@ std::shared_ptr<Binary> ElfParser::Parse()
 
     if (section.name == ".strtab")
     {
-      const size_t stringTableOffset = section.offset;
-
       // TODO: some symbols addresses are null?
       if (is64Bit)
       {
         pBinary->symbols.reserve(symbols64.size());
-        for (ELF::Elf64_Sym& elfSymbol : symbols64)
-        {
-          Symbol& symbol = pBinary->symbols.emplace_back();
-          // TODO: improve this
-          symbol.type = elfSymbol.getType() == ELF::STT_FUNC ? Symbol::Type::FUNC : Symbol::Type::NONE;
-          symbol.address = elfSymbol.st_value;
-
-          if (elfSymbol.st_name)
-          {
-            reader.position = stringTableOffset + elfSymbol.st_name;
-            symbol.name = reader.ReadString();
-          }
-        }
+        for (const ELF::Elf64_Sym& elfSymbol : symbols64)
+          InitSymbol(pBinary->symbols, elfSymbol, section.offset);
       }
       else
       {
         pBinary->symbols.reserve(symbols32.size());
-        for (ELF::Elf32_Sym& elfSymbol : symbols32)
-        {
-          Symbol& symbol = pBinary->symbols.emplace_back();
-          // TODO: improve this
-          symbol.type = elfSymbol.getType() == ELF::STT_FUNC ? Symbol::Type::FUNC : Symbol::Type::NONE;
-          symbol.address = elfSymbol.st_value;
-
-          if (elfSymbol.st_name)
-          {
-            reader.position = stringTableOffset + elfSymbol.st_name;
-            symbol.name = reader.ReadString();
-          }
-        }
+        for (const ELF::Elf32_Sym& elfSymbol : symbols32)
+          InitSymbol(pBinary->symbols, elfSymbol, section.offset);
       }
     }
   }
@@ -201,7 +155,7 @@ void ElfParser::ReadSymbols(size_t aOffset, size_t aSize)
   }
 }
 
-std::string ElfParser::GetSectionName32(ELF::Elf32_Shdr& aSection)
+std::string ElfParser::GetSectionName32(const ELF::Elf32_Shdr& aSection)
 {
   if (elfHeader32.e_shstrndx == 0)
     return "";
@@ -211,7 +165,7 @@ std::string ElfParser::GetSectionName32(ELF::Elf32_Shdr& aSection)
   return reader.ReadString();
 }
 
-std::string ElfParser::GetSectionName64(ELF::Elf64_Shdr& aSection)
+std::string ElfParser::GetSectionName64(const ELF::Elf64_Shdr& aSection)
 {
   if (elfHeader64.e_shstrndx == 0)
     return "";
