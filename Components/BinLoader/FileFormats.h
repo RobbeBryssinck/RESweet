@@ -300,6 +300,37 @@ struct Elf64_Shdr
   uint64_t sh_entsize;
 };
 
+// Symbol bindings.
+enum {
+  STB_LOCAL = 0,  // Local symbol, not visible outside obj file containing def
+  STB_GLOBAL = 1, // Global symbol, visible to all object files being combined
+  STB_WEAK = 2,   // Weak symbol, like global but lower-precedence
+  STB_GNU_UNIQUE = 10,
+  STB_LOOS = 10,   // Lowest operating system-specific binding type
+  STB_HIOS = 12,   // Highest operating system-specific binding type
+  STB_LOPROC = 13, // Lowest processor-specific binding type
+  STB_HIPROC = 15  // Highest processor-specific binding type
+};
+
+// Symbol types.
+enum {
+  STT_NOTYPE = 0,     // Symbol's type is not specified
+  STT_OBJECT = 1,     // Symbol is a data object (variable, array, etc.)
+  STT_FUNC = 2,       // Symbol is executable code (function, etc.)
+  STT_SECTION = 3,    // Symbol refers to a section
+  STT_FILE = 4,       // Local, absolute symbol that refers to a file
+  STT_COMMON = 5,     // An uninitialized common block
+  STT_TLS = 6,        // Thread local data object
+  STT_GNU_IFUNC = 10, // GNU indirect function
+  STT_LOOS = 10,      // Lowest operating system-specific symbol type
+  STT_HIOS = 12,      // Highest operating system-specific symbol type
+  STT_LOPROC = 13,    // Lowest processor-specific symbol type
+  STT_HIPROC = 15,    // Highest processor-specific symbol type
+
+  // AMDGPU symbol types
+  STT_AMDGPU_HSA_KERNEL = 10
+};
+
 struct Elf32_Sym
 {
   uint32_t st_name;     // Symbol name (index into string table)
@@ -308,6 +339,9 @@ struct Elf32_Sym
   unsigned char st_info;  // Symbol's type and binding attributes
   unsigned char st_other; // Must be zero; reserved
   uint16_t st_shndx;    // Which section (header table index) it's defined in
+
+  unsigned char getBinding() const { return st_info >> 4; }
+  unsigned char getType() const { return st_info & 0x0f; }
 };
 
 struct Elf64_Sym
@@ -318,6 +352,9 @@ struct Elf64_Sym
   uint16_t st_shndx;    // Which section (header tbl index) it's defined in
   uint64_t st_value;    // Value or address associated with the symbol
   uint64_t st_size;    // Size of the symbol
+
+  unsigned char getBinding() const { return st_info >> 4; }
+  unsigned char getType() const { return st_info & 0x0f; }
 };
 
 } // namespace ELF

@@ -22,6 +22,7 @@ private:
   void ReadFileClass();
   void ReadElfHeader();
   void ReadSectionHeaders();
+  void ReadSymbols(size_t aPosition, size_t aSize);
 
   std::string GetSectionName32(ELF::Elf32_Shdr& aSection);
   std::string GetSectionName64(ELF::Elf64_Shdr& aSection);
@@ -42,5 +43,10 @@ private:
   union {
     std::vector<ELF::Elf32_Shdr> sections32;
     std::vector<ELF::Elf64_Shdr> sections64{};
+  };
+  // symbols
+  union {
+    std::vector<ELF::Elf32_Sym> symbols32;
+    std::vector<ELF::Elf64_Sym> symbols64{};
   };
 };
