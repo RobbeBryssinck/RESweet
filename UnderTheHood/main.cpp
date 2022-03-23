@@ -18,7 +18,13 @@ int main(int argc, char* argv[])
   spdlog::info("main()");
 
   //std::shared_ptr<Binary> pBinary = Parsing::ParseFile("test.exe");
-  std::shared_ptr<Binary> pBinary = Parsing::ParseFile("a.out");
+  std::shared_ptr<Binary> pBinary = Parsing::ParseFile("as.out");
+  if (!pBinary)
+  {
+    spdlog::error("Failed to load binary");
+    return 1;
+  }
+
   spdlog::info("Binary name: {}, sections: {}, entry point is at 0x{:X}", pBinary->filename, pBinary->sections.size(), pBinary->entryPoint);
 
   return 0;

@@ -30,8 +30,12 @@ Format GetFormat(Reader& aReader)
 
 std::shared_ptr<Binary> ParseFile(const std::string& acFile)
 {
-  // TODO: either do bool Setup() or check for failure
-  Reader reader(acFile);
+  Reader reader{};
+  if (!reader.LoadFromFile(acFile))
+  {
+    spdlog::error("Failed to load to-parse file");
+    return nullptr;
+  }
 
   std::unique_ptr<BaseParser> pParser{};
 

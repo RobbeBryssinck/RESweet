@@ -4,26 +4,34 @@
 #include <fstream>
 #include <spdlog/spdlog.h>
 
-Reader::Reader(const std::string& acFile)
+Reader::Reader(Reader&& aReader) noexcept
 {
+  pBuffer = std::move(aReader.pBuffer);
+  size = aReader.size;
+}
+
+bool Reader::LoadFromFile(const std::string& acFile)
+{
+  if (!std::filesystem::exists(acFile))
+  {
+    spdlog::error("File does not exist: {}", acFile);
+    return false;
+  }
+
   size = std::filesystem::file_size(acFile);
 
   std::ifstream file(acFile, std::ios::binary);
   if (file.fail())
   {
     spdlog::error("Failed to read file contents.");
-    return;
+    return false;
   }
 
   pBuffer = std::make_unique<uint8_t[]>(size);
 
   file.read(reinterpret_cast<char*>(pBuffer.get()), size);
-}
 
-Reader::Reader(Reader&& aReader) noexcept
-{
-  pBuffer = std::move(aReader.pBuffer);
-  size = aReader.size;
+  return true;
 }
 
 bool Reader::ReadImpl(void* apDestination, const size_t acLength, bool aPeak)

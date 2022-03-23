@@ -8,8 +8,10 @@ class Reader
 {
 public:
 
-  Reader(const std::string& acFile);
+  Reader() = default;
   Reader(Reader&& aReader) noexcept;
+
+  bool LoadFromFile(const std::string& acFile);
 
   template <class T>
   bool Read(T& apDestination, bool aPeak = false)
