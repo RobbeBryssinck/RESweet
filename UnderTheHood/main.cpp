@@ -2,8 +2,10 @@
 #include <spdlog/spdlog-inl.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/sinks/rotating_file_sink.h>
-#include <BinLoader/BaseParser.h>
 #include <iostream>
+
+#include <BinLoader/BaseParser.h>
+#include <ImGuiImpl/imgui_runner.h>
 
 #include "Core/Disassembly.h"
 
@@ -20,6 +22,8 @@ void InitializeLogger()
 int main(int argc, char* argv[])
 {
   InitializeLogger();
+
+  Run();
 
   std::string file = "";
 

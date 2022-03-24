@@ -2,7 +2,6 @@ group("Core")
 project "UnderTheHood"
    kind "ConsoleApp"
    language "C++"
-   targetdir "bin/%{cfg.buildcfg}"
 
    files {"**.h", "**.cpp"}
 
@@ -15,9 +14,12 @@ project "UnderTheHood"
 
    libdirs
    {
+      "../Build/Bin/%{cfg.longname}",
       "../Vendor/capstone"
    }
 
    links "BinLoader"
+   links "d3d11"
+   links "imgui"
    links "ImGuiImpl"
    links "capstone"

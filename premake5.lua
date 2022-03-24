@@ -14,8 +14,10 @@ workspace "RESweet"
       defines { "NDEBUG" }
       optimize "On"
 
-   targetdir ("Build/Bin/%{prj.name}/%{cfg.longname}")
-   objdir ("Build/Obj/%{prj.name}/%{cfg.longname}")
+   filter { }
+
+   targetdir ("Build/Bin/%{cfg.longname}")
+   objdir ("Build/Obj/%{cfg.longname}")
 
 include("Vendor")
 include("Components")
