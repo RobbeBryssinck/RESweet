@@ -7,7 +7,7 @@
 #include <BinLoader/BaseParser.h>
 #include <ImGuiImpl/imgui_runner.h>
 
-#include "Core/Disassembly.h"
+#include "Disassembly/Disassembly.h"
 
 void InitializeLogger()
 {

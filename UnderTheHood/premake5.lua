@@ -9,7 +9,8 @@ project "UnderTheHood"
    {
       "../Components",
       "../Vendor/spdlog/include",
-      "../Vendor/capstone/include"
+      "../Vendor/capstone/include",
+      "../RELibraries/RECore"
    }
 
    libdirs

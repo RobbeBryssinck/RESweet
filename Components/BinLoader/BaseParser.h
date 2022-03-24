@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Binary.h"
-#include "Reader.h"
+#include <Reader.h>
 
 namespace Parsing
 {
