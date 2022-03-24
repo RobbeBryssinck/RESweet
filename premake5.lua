@@ -20,5 +20,6 @@ workspace "RESweet"
    objdir ("Build/Obj/%{cfg.longname}")
 
 include("Vendor")
+include("RELibraries")
 include("Components")
 include("UnderTheHood")

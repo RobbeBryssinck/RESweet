@@ -1,4 +1,4 @@
-group("Core")
+group("Apps")
 project "UnderTheHood"
    kind "ConsoleApp"
    language "C++"
