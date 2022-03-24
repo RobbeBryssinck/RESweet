@@ -1,15 +1,3 @@
-function includeCapstone()
-   includedirs "../Vendor/capstone/include"
-end
-
-function linkCapstone()
-   libdirs "../Vendor/capstone"
-
-   filter "kind:not StaticLib"
-      links "capstone"
-   filter {}
-end
-
 group("Core")
 project "UnderTheHood"
    kind "ConsoleApp"
@@ -21,11 +9,15 @@ project "UnderTheHood"
    includedirs 
    {
       "../Components",
-      "../Vendor/spdlog/include"
+      "../Vendor/spdlog/include",
+      "../Vendor/capstone/include"
+   }
+
+   libdirs
+   {
+      "../Vendor/capstone"
    }
 
    links "BinLoader"
-   links "UI"
-
-   includeCapstone()
-   linkCapstone()
+   links "ImGuiImpl"
+   links "capstone"

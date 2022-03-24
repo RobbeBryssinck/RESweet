@@ -1,4 +1,4 @@
-project "UI"
+project "ImGuiImpl"
    kind "StaticLib"
    language "C++"
    targetdir "bin/%{cfg.buildcfg}"
@@ -9,3 +9,10 @@ project "UI"
    {
       "../../Vendor/imgui"
    }
+
+   libdirs
+   {
+      "../../Vendor/imgui/bin"
+   }
+
+   links "imgui"
