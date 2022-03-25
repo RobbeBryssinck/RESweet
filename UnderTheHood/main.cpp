@@ -7,6 +7,7 @@
 #include <BinLoader/BaseParser.h>
 #include <ImGuiImpl/imgui_runner.h>
 
+#include "Application.h"
 #include "Disassembly/Disassembly.h"
 
 void InitializeLogger()
@@ -23,6 +24,10 @@ int main(int argc, char* argv[])
 {
   InitializeLogger();
 
+  Application application;
+  application.Run();
+
+  /*
   Run();
 
   std::string file = "";
@@ -46,6 +51,7 @@ int main(int argc, char* argv[])
   spdlog::info("Binary name: {}, sections: {}, entry point is at 0x{:X}", pBinary->filename, pBinary->sections.size(), pBinary->entryPoint);
 
   Disassembly::DisassembleLinear(pBinary);
+  */
 
   return 0;
 }
