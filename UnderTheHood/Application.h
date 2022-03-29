@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 // TODO: event system (or observer system?)
 struct Event;
 
