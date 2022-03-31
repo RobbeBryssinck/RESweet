@@ -121,6 +121,7 @@ bool RunImGui()
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
+        /*
         // 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
         {
             static float f = 0.0f;
@@ -153,6 +154,7 @@ bool RunImGui()
                 show_another_window = false;
             ImGui::End();
         }
+        */
 
         // Rendering
         ImGui::Render();
@@ -341,6 +343,13 @@ imgui_runner::~imgui_runner()
 
 void imgui_runner::BeginFrame()
 {
+  MSG msg;
+  while (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
+  {
+    ::TranslateMessage(&msg);
+    ::DispatchMessage(&msg);
+  }
+
   ImGui_ImplDX11_NewFrame();
   ImGui_ImplWin32_NewFrame();
   ImGui::NewFrame();
