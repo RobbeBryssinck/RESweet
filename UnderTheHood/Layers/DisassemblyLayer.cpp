@@ -35,7 +35,7 @@ void DisassemblyLayer::UpdateUI()
   static bool show = false;
   ImGui::ShowDemoWindow(&show);
 
-  ImGui::Begin("DisassemblyLayer");
+  ImGui::Begin("Disassembly");
 
   ImGui::Text("Count: %d", count);
 
@@ -49,6 +49,19 @@ void DisassemblyLayer::UpdateUI()
   {
     ImGui::Text("Instruction count: %d", capstoneOutput.instructionCount);
     ImGui::Text("Function count: %d", capstoneOutput.functions.size());
+
+    static uint64_t address = 0;
+    ImGui::InputScalar("Address", ImGuiDataType_U64, &address, 0, 0, "%" PRIx64, ImGuiInputTextFlags_CharsHexadecimal);
+    if (ImGui::Button("Get function") && address)
+    {
+      if (capstoneOutput.functions.contains(address))
+      {
+        CapstoneOutput::Function& function = capstoneOutput.functions[address];
+        spdlog::info("Function address: {:X}, size: {}, instruction count: {}", function.address, function.size, function.instructions.size());
+      }
+      else
+        spdlog::error("Function with address {:X} not found.", address);
+    }
   }
 
   ImGui::End();
@@ -130,9 +143,8 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary>
     if (instruction.id == X86_INS_INT3)
       continue;
 
-    Function function = functions[instruction.address];
+    Function& function = functions[instruction.address];
     function.address = instruction.address;
-    function.size = instruction.size;
 
     do
     {
@@ -144,6 +156,9 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary>
 
       instruction = instructions[i];
     } while (instruction.id != X86_INS_INT3);
+
+    // TODO: is this right if i >= instructionCount?
+    function.size = instruction.address - function.address;
 
     /*
     printf("0x%016jx: ", instruction.address);
