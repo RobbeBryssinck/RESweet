@@ -58,6 +58,21 @@ void DisassemblyLayer::UpdateUI()
       {
         CapstoneOutput::Function& function = capstoneOutput.functions[address];
         spdlog::info("Function address: {:X}, size: {}, instruction count: {}", function.address, function.size, function.instructions.size());
+
+        for (cs_insn& instruction : function.instructions)
+        {
+          printf("0x%016jx: ", instruction.address);
+
+          for (size_t j = 0; j < 16; j++)
+          {
+            if (j < instruction.size)
+              printf("%02x ", instruction.bytes[j]);
+            else
+              printf("   ");
+          }
+
+          printf("%-12s %s\n", instruction.mnemonic, instruction.op_str);
+        }
       }
       else
         spdlog::error("Function with address {:X} not found.", address);
