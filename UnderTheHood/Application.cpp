@@ -1,5 +1,7 @@
 #include "Application.h"
 
+#include <ImGuiImpl/imgui_runner.h>
+
 Application* Application::s_application = nullptr;
 
 Application::Application()
@@ -8,11 +10,22 @@ Application::Application()
   s_application = this;
 }
 
+void Application::AddLayer(Layer* aLayer)
+{
+  layers.push_back(aLayer);
+}
+
 void Application::Run()
 {
   while (isRunning)
   {
-    // TODO: OnUpdate();
+    for (Layer* layer : layers)
+      layer->UpdateLogic();
+
+    uiRunner.BeginFrame();
+    for (Layer* layer : layers)
+      layer->UpdateUI();
+    uiRunner.EndFrame();
   }
 }
 

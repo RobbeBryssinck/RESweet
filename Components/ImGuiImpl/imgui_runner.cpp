@@ -5,6 +5,7 @@
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
+#include "imgui_runner.h"
 #include <d3d11.h>
 #include <tchar.h>
 
@@ -22,7 +23,7 @@ void CleanupRenderTarget();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 // Main code
-bool Run()
+bool RunImGui()
 {
     // Create application window
     //ImGui_ImplWin32_EnableDpiAwareness();
@@ -281,4 +282,89 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     }
     return ::DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+imgui_runner::imgui_runner()
+{
+  // Create application window
+  wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, _T("ImGui Example"), NULL };
+  ::RegisterClassEx(&wc);
+  hwnd = ::CreateWindow(wc.lpszClassName, _T("Dear ImGui DirectX11 Example"), WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, NULL, NULL, wc.hInstance, NULL);
+
+  // Initialize Direct3D
+  if (!CreateDeviceD3D(hwnd))
+  {
+      CleanupDeviceD3D();
+      ::UnregisterClass(wc.lpszClassName, wc.hInstance);
+      return;
+  }
+
+  // Show the window
+  ::ShowWindow(hwnd, SW_SHOWDEFAULT);
+  ::UpdateWindow(hwnd);
+
+  // Setup Dear ImGui context
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO(); (void)io;
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+
+  // Setup Dear ImGui style
+  ImGui::StyleColorsDark();
+
+  // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+  ImGuiStyle& style = ImGui::GetStyle();
+  if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+  {
+      style.WindowRounding = 0.0f;
+      style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+  }
+
+  // Setup Platform/Renderer backends
+  ImGui_ImplWin32_Init(hwnd);
+  ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
+}
+
+imgui_runner::~imgui_runner()
+{
+  // Cleanup
+  ImGui_ImplDX11_Shutdown();
+  ImGui_ImplWin32_Shutdown();
+  ImGui::DestroyContext();
+
+  CleanupDeviceD3D();
+  ::DestroyWindow(hwnd);
+  ::UnregisterClass(wc.lpszClassName, wc.hInstance);
+}
+
+void imgui_runner::BeginFrame()
+{
+  ImGui_ImplDX11_NewFrame();
+  ImGui_ImplWin32_NewFrame();
+  ImGui::NewFrame();
+}
+
+void imgui_runner::EndFrame()
+{
+  ImGuiIO& io = ImGui::GetIO(); (void)io;
+  ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+  // Rendering
+  ImGui::Render();
+  const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+  g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
+  g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
+  ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+  // Update and Render additional Platform Windows
+  if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+  {
+      ImGui::UpdatePlatformWindows();
+      ImGui::RenderPlatformWindowsDefault();
+  }
+
+  g_pSwapChain->Present(1, 0); // Present with vsync
+  //g_pSwapChain->Present(0, 0); // Present without vsync
 }
