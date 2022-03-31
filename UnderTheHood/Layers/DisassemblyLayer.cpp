@@ -3,7 +3,6 @@
 #include <BinLoader/BaseParser.h>
 
 #include <imgui.h>
-#include <capstone/capstone.h>
 #include <spdlog/spdlog.h>
 
 DisassemblyLayer::~DisassemblyLayer()
@@ -128,18 +127,23 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary>
   {
     cs_insn& instruction = instructions[i];
 
-    static bool hitInt3Last = false;
     if (instruction.id == X86_INS_INT3)
-    {
-      hitInt3Last = true;
       continue;
-    }
 
-    if (hitInt3Last)
+    Function function = functions[instruction.address];
+    function.address = instruction.address;
+    function.size = instruction.size;
+
+    do
     {
-      functions[instruction.address] = &instructions[i];
-      hitInt3Last = false;
-    }
+      function.instructions.push_back(instruction);
+
+      i++;
+      if (i >= instructionCount)
+        break;
+
+      instruction = instructions[i];
+    } while (instruction.id != X86_INS_INT3);
 
     /*
     printf("0x%016jx: ", instruction.address);

@@ -4,17 +4,24 @@
 
 #include <BinLoader/Binary.h>
 
+#include <capstone/capstone.h>
+
 #include <cstdint>
 #include <string>
 #include <unordered_map>
-
-struct cs_insn;
 
 class DisassemblyLayer : public Layer
 {
 public:
   struct CapstoneOutput
   {
+    struct Function
+    {
+      uint64_t address = 0;
+      size_t size = 0;
+      std::vector<cs_insn> instructions{};
+    };
+
     bool DisassembleLinear(std::shared_ptr<Binary> apBinary);
 
     void Destroy();
@@ -24,7 +31,7 @@ public:
     size_t handle = 0;
     size_t instructionCount = 0;
     cs_insn* instructions = nullptr;
-    std::unordered_map<size_t, cs_insn*> functions{};
+    std::unordered_map<uint64_t, Function> functions{};
   };
 
   DisassemblyLayer() = default;
