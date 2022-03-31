@@ -13,12 +13,11 @@ std::shared_ptr<Binary> ElfParser::Parse()
   pBinary->type = Binary::Type::ELF;
   pBinary->architecture = Binary::Architecture::X86;
 
-  // TODO: pBinary->imageBase
-
   if (is64Bit)
   {
     pBinary->mode = Binary::Mode::BITS_64;
     pBinary->entryPoint = elfHeader64.e_entry;
+    pBinary->imageBase = 0x400000;
 
     pBinary->sections.reserve(sections64.size());
     for (const ELF::Elf64_Shdr& elfSection : sections64)
@@ -32,6 +31,7 @@ std::shared_ptr<Binary> ElfParser::Parse()
   {
     pBinary->mode = Binary::Mode::BITS_32;
     pBinary->entryPoint = elfHeader32.e_entry;
+    pBinary->imageBase = 0x8048000;
 
     pBinary->sections.reserve(sections32.size());
     for (const ELF::Elf32_Shdr& elfSection : sections32)
