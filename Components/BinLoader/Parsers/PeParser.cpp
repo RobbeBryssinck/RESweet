@@ -16,11 +16,13 @@ std::shared_ptr<Binary> PeParser::Parse()
   {
     pBinary->mode = Binary::Mode::BITS_64;
     pBinary->entryPoint = optionalHeader64.AddressOfEntryPoint;
+    pBinary->imageBase = optionalHeader64.ImageBase;
   }
   else
   {
     pBinary->mode = Binary::Mode::BITS_32;
     pBinary->entryPoint = optionalHeader32.AddressOfEntryPoint;
+    pBinary->imageBase = optionalHeader32.ImageBase;
   }
 
   pBinary->sections.reserve(peHeader.NumberOfSections);

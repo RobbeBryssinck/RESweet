@@ -79,6 +79,7 @@ public:
   Architecture architecture = Architecture::NONE;
   Mode mode = Mode::NONE;
   uint64_t entryPoint = 0;
+  uint64_t imageBase = 0;
   std::vector<Section> sections{};
   std::vector<Symbol> symbols{};
 };

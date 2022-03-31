@@ -13,6 +13,8 @@ std::shared_ptr<Binary> ElfParser::Parse()
   pBinary->type = Binary::Type::ELF;
   pBinary->architecture = Binary::Architecture::X86;
 
+  // TODO: pBinary->imageBase
+
   if (is64Bit)
   {
     pBinary->mode = Binary::Mode::BITS_64;
