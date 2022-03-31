@@ -20,6 +20,7 @@ project "UnderTheHood"
       "../Vendor/capstone"
    }
 
+   links "RECore"
    links "BinLoader"
    links "d3d11"
    links "imgui"

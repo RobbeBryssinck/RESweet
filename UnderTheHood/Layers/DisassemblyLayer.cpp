@@ -1,6 +1,7 @@
 #include "DisassemblyLayer.h"
 
 #include <BinLoader/BaseParser.h>
+#include <FileHandling.h>
 
 #include <imgui.h>
 #include <spdlog/spdlog.h>
@@ -41,7 +42,7 @@ void DisassemblyLayer::UpdateUI()
 
   if (ImGui::Button("Disassemble"))
   {
-    fileToDisassemble = "C:\\dev\\RESweet\\Samples\\test64.exe";
+    fileToDisassemble = OpenFileDialogue();
     shouldDisassemble = true;
   }
 
