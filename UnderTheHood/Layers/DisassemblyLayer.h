@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 
 struct cs_insn;
 
@@ -23,6 +24,7 @@ public:
     size_t handle = 0;
     size_t instructionCount = 0;
     cs_insn* instructions = nullptr;
+    std::unordered_map<size_t, cs_insn*> functions{};
   };
 
   DisassemblyLayer() = default;

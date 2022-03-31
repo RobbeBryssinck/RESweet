@@ -49,6 +49,7 @@ void DisassemblyLayer::UpdateUI()
   if (capstoneOutput.IsDisassembled())
   {
     ImGui::Text("Instruction count: %d", capstoneOutput.instructionCount);
+    ImGui::Text("Function count: %d", capstoneOutput.functions.size());
   }
 
   ImGui::End();
@@ -123,13 +124,24 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary>
     return false;
   }
 
-  /*
-  for (size_t i = 0; i < capstoneOutput.instructionCount; i++)
+  for (size_t i = 0; i < instructionCount; i++)
   {
-    cs_insn& instruction = capstoneOutput.instructions[i];
-    if (instruction.id == X86_INS_INT3)
-      continue;
+    cs_insn& instruction = instructions[i];
 
+    static bool hitInt3Last = false;
+    if (instruction.id == X86_INS_INT3)
+    {
+      hitInt3Last = true;
+      continue;
+    }
+
+    if (hitInt3Last)
+    {
+      functions[instruction.address] = &instructions[i];
+      hitInt3Last = false;
+    }
+
+    /*
     printf("0x%016jx: ", instruction.address);
     for (size_t j = 0; j < 16; j++)
     {
@@ -140,8 +152,8 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary>
     }
 
     printf("%-12s %s\n", instruction.mnemonic, instruction.op_str);
+    */
   }
-  */
 
   return true;
 }
