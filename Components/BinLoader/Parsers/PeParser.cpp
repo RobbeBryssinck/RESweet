@@ -23,8 +23,6 @@ std::shared_ptr<Binary> PeParser::Parse()
     pBinary->entryPoint = optionalHeader32.AddressOfEntryPoint;
   }
 
-  // TODO: Section::offset
-
   pBinary->sections.reserve(peHeader.NumberOfSections);
 
   for (PE::coff_section& peSection : sections)
@@ -35,6 +33,7 @@ std::shared_ptr<Binary> PeParser::Parse()
     // TODO: revisit this, this might have to be more comprehensive to catch everything
     section.type = peSection.IsCode() ? Section::Type::CODE : Section::Type::DATA;
     section.address = peSection.PointerToRawData;
+    section.offset = peSection.VirtualAddress;
     section.size = peSection.SizeOfRawData;
 
     if (section.size == 0)

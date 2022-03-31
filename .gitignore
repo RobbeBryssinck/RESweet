@@ -12,3 +12,7 @@ testbins/
 build/
 Generated/
 Debug/
+
+Samples/*.id*
+Samples/*.nam
+Samples/*.til

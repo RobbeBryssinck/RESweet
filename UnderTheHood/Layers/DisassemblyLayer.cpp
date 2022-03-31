@@ -41,7 +41,7 @@ void DisassemblyLayer::UpdateUI()
 
   if (ImGui::Button("Disassemble"))
   {
-    fileToDisassemble = "C:\\dev\\RESweet\\Samples\\test.exe";
+    fileToDisassemble = "C:\\dev\\RESweet\\Samples\\test64.exe";
     shouldDisassemble = true;
   }
 
@@ -144,7 +144,7 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary>
     return false;
   }
 
-  instructionCount = cs_disasm(handle, pText->pBytes.get(), pText->size, pText->address, 0, &instructions);
+  instructionCount = cs_disasm(handle, pText->pBytes.get(), pText->size, pText->offset, 0, &instructions);
   if (instructionCount == 0)
   {
     spdlog::error("Disassembly failed, error: {}", cs_strerror(cs_errno(handle)));
