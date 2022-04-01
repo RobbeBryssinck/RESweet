@@ -13,6 +13,7 @@
 class DisassemblyLayer : public Layer
 {
 public:
+  // TODO: move the disassembly to its own component
   struct CapstoneOutput
   {
     struct Function
@@ -22,11 +23,19 @@ public:
       std::vector<cs_insn> instructions{};
     };
 
+    static void PrintInstruction(cs_insn* apInstruction);
+
+  private:
+    bool SetupDisassembly(std::shared_ptr<Binary> apBinary);
+    bool IsControlInstruction(uint8_t aInstruction) const;
+
+  public:
     bool DisassembleLinear(std::shared_ptr<Binary> apBinary);
+    bool DisassembleRecursive(std::shared_ptr<Binary> apBinary);
 
     void Destroy();
 
-    bool IsDisassembled() const { return instructions; }
+    bool IsDisassembled() const { return handle; }
 
     size_t handle = 0;
     size_t instructionCount = 0;

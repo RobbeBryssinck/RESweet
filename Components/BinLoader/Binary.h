@@ -32,14 +32,14 @@ public:
 
   bool Contains(uint64_t aAddress) const 
   {
-    return (aAddress >= address) && (aAddress - address < size);
+    return (aAddress >= virtualAddress) && (aAddress - virtualAddress < size);
   }
 
   std::shared_ptr<Binary> pBinary{};
   std::string name = "";
   Type type = Type::NONE;
   uint64_t address = 0;
-  uint64_t offset = 0;
+  uint64_t virtualAddress = 0;
   uint64_t size = 0;
   std::unique_ptr<uint8_t[]> pBytes{};
 };

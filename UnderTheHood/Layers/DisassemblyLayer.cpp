@@ -6,6 +6,9 @@
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 
+#include <queue>
+#include <set>
+
 DisassemblyLayer::~DisassemblyLayer()
 {
   capstoneOutput.Destroy();
@@ -25,7 +28,8 @@ void DisassemblyLayer::UpdateLogic()
     capstoneOutput.Destroy();
 
     std::shared_ptr<Binary> pBinary = Parsing::ParseFile(std::move(fileToDisassemble));
-    capstoneOutput.DisassembleLinear(pBinary);
+    //capstoneOutput.DisassembleLinear(pBinary);
+    capstoneOutput.DisassembleRecursive(pBinary);
 
     shouldDisassemble = false;
   }
@@ -61,19 +65,7 @@ void DisassemblyLayer::UpdateUI()
         spdlog::info("Function address: {:X}, size: {}, instruction count: {}", function.address, function.size, function.instructions.size());
 
         for (cs_insn& instruction : function.instructions)
-        {
-          printf("0x%016jx: ", instruction.address);
-
-          for (size_t j = 0; j < 16; j++)
-          {
-            if (j < instruction.size)
-              printf("%02x ", instruction.bytes[j]);
-            else
-              printf("   ");
-          }
-
-          printf("%-12s %s\n", instruction.mnemonic, instruction.op_str);
-        }
+          DisassemblyLayer::CapstoneOutput::PrintInstruction(&instruction);
       }
       else
         spdlog::error("Function with address {:X} not found.", address);
@@ -88,6 +80,21 @@ void DisassemblyLayer::OnEvent(const Event& acEvent)
 
 }
 
+void DisassemblyLayer::CapstoneOutput::PrintInstruction(cs_insn* apInstruction)
+{
+  printf("0x%016jx: ", apInstruction->address);
+
+  for (size_t j = 0; j < 16; j++)
+  {
+    if (j < apInstruction->size)
+      printf("%02x ", apInstruction->bytes[j]);
+    else
+      printf("   ");
+  }
+
+  printf("%-12s %s\n", apInstruction->mnemonic, apInstruction->op_str);
+}
+
 void DisassemblyLayer::CapstoneOutput::Destroy()
 {
   if (IsDisassembled())
@@ -97,15 +104,8 @@ void DisassemblyLayer::CapstoneOutput::Destroy()
   }
 }
 
-bool DisassemblyLayer::CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary> apBinary)
+bool DisassemblyLayer::CapstoneOutput::SetupDisassembly(std::shared_ptr<Binary> apBinary)
 {
-  Section* pText = apBinary->GetTextSection();
-  if (!pText)
-  {
-    spdlog::warn("Could not find text section in binary.");
-    return false;
-  }
-
   cs_arch architecture{};
   switch (apBinary->architecture)
   {
@@ -145,7 +145,22 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary>
     return false;
   }
 
-  instructionCount = cs_disasm(handle, pText->pBytes.get(), pText->size, pText->offset + apBinary->imageBase, 0, &instructions);
+  return true;
+}
+
+bool DisassemblyLayer::CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary> apBinary)
+{
+  if (!SetupDisassembly(apBinary))
+    return false;
+
+  Section* pText = apBinary->GetTextSection();
+  if (!pText)
+  {
+    spdlog::warn("Could not find text section in binary.");
+    return false;
+  }
+
+  instructionCount = cs_disasm(handle, pText->pBytes.get(), pText->size, pText->virtualAddress + apBinary->imageBase, 0, &instructions);
   if (instructionCount == 0)
   {
     spdlog::error("Disassembly failed, error: {}", cs_strerror(cs_errno(handle)));
@@ -175,20 +190,157 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary>
 
     // TODO: is this right if i >= instructionCount?
     function.size = instruction.address - function.address;
-
-    /*
-    printf("0x%016jx: ", instruction.address);
-    for (size_t j = 0; j < 16; j++)
-    {
-      if (j < instruction.size)
-        printf("%02x ", instruction.bytes[j]);
-      else
-        printf("   ");
-    }
-
-    printf("%-12s %s\n", instruction.mnemonic, instruction.op_str);
-    */
   }
 
   return true;
+}
+
+bool DisassemblyLayer::CapstoneOutput::DisassembleRecursive(std::shared_ptr<Binary> apBinary)
+{
+  if (!SetupDisassembly(apBinary))
+    return false;
+
+  Section* pText = apBinary->GetTextSection();
+  if (!pText)
+  {
+    spdlog::warn("Could not find text section in binary.");
+    return false;
+  }
+
+  cs_option(handle, CS_OPT_DETAIL, CS_OPT_ON);
+
+  cs_insn* instruction = cs_malloc(handle);
+  if (!instruction)
+  {
+    spdlog::error("Disassembly failed: out of memory");
+    cs_close(&handle);
+    return false;
+  }
+
+  std::queue<uint64_t> addressQueue{};
+
+  if (pText->Contains(apBinary->entryPoint))
+    addressQueue.push(apBinary->entryPoint);
+
+  for (Symbol& symbol : apBinary->symbols)
+  {
+    if (symbol.type == Symbol::Type::FUNC && pText->Contains(symbol.address))
+      addressQueue.push(symbol.address);
+  }
+
+  std::set<uint64_t> processedAddresses{};
+  while (!addressQueue.empty())
+  {
+    uint64_t address = addressQueue.front();
+    addressQueue.pop();
+
+    if (processedAddresses.contains(address))
+      continue;
+
+    uint64_t offset = address - pText->virtualAddress;
+    const uint8_t* pInstructions = pText->pBytes.get() + offset;
+    size_t size = pText->size - offset;
+
+    printf("# Disassembling new target: 0x%016jx\n", offset);
+
+    uint64_t loadedAddress = address + apBinary->imageBase;
+
+    Function& function = functions[loadedAddress];
+    function.address = loadedAddress;
+
+    while (cs_disasm_iter(handle, &pInstructions, &size, &address, instruction))
+    {
+      if (instruction->id == X86_INS_INVALID || instruction->size == 0)
+        break;
+
+      processedAddresses.insert(instruction->address);
+
+      DisassemblyLayer::CapstoneOutput::PrintInstruction(instruction);
+      function.instructions.push_back(*instruction);
+
+      bool isControlInstruction = false;
+      for (size_t i = 0; i < instruction->detail->groups_count; i++)
+      {
+        isControlInstruction = IsControlInstruction(instruction->detail->groups[i]);
+
+        if (isControlInstruction)
+          break;
+      }
+
+      if (!isControlInstruction)
+      {
+        if (instruction->id == X86_INS_HLT)
+          break;
+
+        continue;
+      }
+
+      int64_t target = 0;
+      cs_x86_op* operand;
+      for (size_t i = 0; i < instruction->detail->groups_count; i++)
+      {
+        if (IsControlInstruction(instruction->detail->groups[i]))
+        {
+          for (size_t j = 0; j < instruction->detail->x86.op_count; j++)
+          {
+            operand = &instruction->detail->x86.operands[j];
+            if (operand->type == X86_OP_IMM)
+              target = operand->imm;
+          }
+        }
+      }
+
+      if (target && !processedAddresses.contains(target) && pText->Contains(target))
+      {
+        addressQueue.push(target);
+        printf(" -> New target found: 0x%016jx\n", target);
+      }
+
+      bool stop = false;
+      switch (instruction->id)
+      {
+      case X86_INS_JMP:
+      case X86_INS_LJMP:
+      case X86_INS_RET:
+      case X86_INS_RETF:
+      case X86_INS_RETFQ:
+        stop = true;
+        break;
+      default:
+        stop = false;
+      }
+
+      if (stop)
+        break;
+    }
+
+    printf("----------\n");
+
+    //function.size = ?
+    //function.instructions = ?
+  }
+
+  instructionCount = 1;
+  instructions = instruction;
+
+  /*
+  cs_free(instruction, 1);
+  cs_close(&handle);
+  */
+
+  return true;
+}
+
+bool DisassemblyLayer::CapstoneOutput::IsControlInstruction(uint8_t aInstruction) const
+{
+  switch (aInstruction)
+  {
+  case CS_GRP_JUMP:
+  case CS_GRP_CALL:
+  case CS_GRP_RET:
+  case CS_GRP_IRET:
+    return true;
+  default:
+    return false;
+  }
 }

@@ -45,7 +45,7 @@ std::shared_ptr<Binary> ElfParser::Parse()
   for (Section& section : pBinary->sections)
   {
     section.pBytes = std::make_unique<uint8_t[]>(section.size);
-    reader.position = section.offset;
+    reader.position = section.virtualAddress;
     reader.ReadImpl(section.pBytes.get(), section.size);
 
     if (section.name == ".strtab")
@@ -55,13 +55,13 @@ std::shared_ptr<Binary> ElfParser::Parse()
       {
         pBinary->symbols.reserve(symbols64.size());
         for (const ELF::Elf64_Sym& elfSymbol : symbols64)
-          InitSymbol(pBinary->symbols, elfSymbol, section.offset);
+          InitSymbol(pBinary->symbols, elfSymbol, section.virtualAddress);
       }
       else
       {
         pBinary->symbols.reserve(symbols32.size());
         for (const ELF::Elf32_Sym& elfSymbol : symbols32)
-          InitSymbol(pBinary->symbols, elfSymbol, section.offset);
+          InitSymbol(pBinary->symbols, elfSymbol, section.virtualAddress);
       }
     }
   }

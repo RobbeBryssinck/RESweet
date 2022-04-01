@@ -35,7 +35,7 @@ std::shared_ptr<Binary> PeParser::Parse()
     // TODO: revisit this, this might have to be more comprehensive to catch everything
     section.type = peSection.IsCode() ? Section::Type::CODE : Section::Type::DATA;
     section.address = peSection.PointerToRawData;
-    section.offset = peSection.VirtualAddress;
+    section.virtualAddress = peSection.VirtualAddress;
     section.size = peSection.SizeOfRawData;
 
     if (section.size == 0)

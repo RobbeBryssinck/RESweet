@@ -37,10 +37,10 @@ private:
     section.type = (aElfSection.sh_flags & 0x4) ? Section::Type::CODE : Section::Type::DATA;
     section.address = aElfSection.sh_addr;
     section.size = aElfSection.sh_size;
-    section.offset = aElfSection.sh_offset;
+    section.virtualAddress = aElfSection.sh_offset;
 
     if (section.name == ".symtab")
-      ReadSymbols(section.offset, section.size);
+      ReadSymbols(section.virtualAddress, section.size);
 
     return { &section };
   }
