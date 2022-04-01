@@ -35,6 +35,14 @@ public:
     return (aAddress >= virtualAddress) && (aAddress - virtualAddress < size);
   }
 
+  // TODO: binary.cpp
+  /*
+  bool ContainsImageBase(uint64_t aAddress) const 
+  {
+    return (aAddress >= (virtualAddress + pBinary->imageBase)) && (aAddress - (virtualAddress + pBinary->imageBase) < size);
+  }
+  */
+
   std::shared_ptr<Binary> pBinary{};
   std::string name = "";
   Type type = Type::NONE;

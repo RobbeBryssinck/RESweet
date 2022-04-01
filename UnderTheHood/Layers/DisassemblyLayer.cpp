@@ -220,12 +220,12 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleRecursive(std::shared_ptr<Bina
   std::queue<uint64_t> addressQueue{};
 
   if (pText->Contains(apBinary->entryPoint))
-    addressQueue.push(apBinary->entryPoint);
+    addressQueue.push(apBinary->entryPoint + apBinary->imageBase);
 
   for (Symbol& symbol : apBinary->symbols)
   {
     if (symbol.type == Symbol::Type::FUNC && pText->Contains(symbol.address))
-      addressQueue.push(symbol.address);
+      addressQueue.push(symbol.address + apBinary->imageBase);
   }
 
   std::set<uint64_t> processedAddresses{};
@@ -237,16 +237,14 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleRecursive(std::shared_ptr<Bina
     if (processedAddresses.contains(address))
       continue;
 
-    uint64_t offset = address - pText->virtualAddress;
+    uint64_t offset = address - pText->virtualAddress - apBinary->imageBase;
     const uint8_t* pInstructions = pText->pBytes.get() + offset;
     size_t size = pText->size - offset;
 
-    printf("# Disassembling new target: 0x%016jx\n", offset);
+    printf("# Disassembling new target: 0x%016jx\n", address);
 
-    uint64_t loadedAddress = address + apBinary->imageBase;
-
-    Function& function = functions[loadedAddress];
-    function.address = loadedAddress;
+    Function& function = functions[address];
+    function.address = address;
 
     while (cs_disasm_iter(handle, &pInstructions, &size, &address, instruction))
     {
@@ -290,7 +288,7 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleRecursive(std::shared_ptr<Bina
         }
       }
 
-      if (target && !processedAddresses.contains(target) && pText->Contains(target))
+      if (target && !processedAddresses.contains(target) && pText->Contains(target - apBinary->imageBase))
       {
         addressQueue.push(target);
         printf(" -> New target found: 0x%016jx\n", target);
