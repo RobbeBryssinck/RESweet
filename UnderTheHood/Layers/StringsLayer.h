@@ -2,6 +2,9 @@
 
 #include "Layer.h"
 
+#include <vector>
+#include <string>
+
 class StringsLayer : public Layer
 {
 public:
@@ -11,4 +14,8 @@ public:
   virtual void OnEvent(const Event& acEvent) override;
 
 private:
+  std::vector<std::string> strings{};
+
+  bool shouldCollectStrings = false;
+  std::string stringsFilename = "";
 };

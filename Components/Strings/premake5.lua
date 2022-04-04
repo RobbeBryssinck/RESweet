@@ -6,5 +6,8 @@ project "Strings"
 
    includedirs 
    {
-      "../../Vendor/spdlog/include"
+      "../../Vendor/spdlog/include",
+      "../../RELibraries/RECore"
    }
+
+   links "RECore"

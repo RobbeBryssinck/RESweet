@@ -27,24 +27,18 @@ Format GetFormat(Reader& aReader)
   }
 }
 
-std::shared_ptr<Binary> ParseFile(const std::string& acFile)
+std::shared_ptr<Binary> ParseFile(Reader& aReader)
 {
-  Reader reader{};
-  if (!reader.LoadFromFile(acFile))
-  {
-    spdlog::error("Failed to load to-parse file");
-    return nullptr;
-  }
-
   std::unique_ptr<BaseParser> pParser{};
 
-  switch (GetFormat(reader))
+  // TODO: confirm std::move() stuff for Reader
+  switch (GetFormat(aReader))
   {
   case Format::PE:
-    pParser = std::make_unique<PeParser>(std::move(reader));
+    pParser = std::make_unique<PeParser>(std::move(aReader));
     break;
   case Format::ELF:
-    pParser = std::make_unique<ElfParser>(std::move(reader));
+    pParser = std::make_unique<ElfParser>(std::move(aReader));
     break;
   case Format::UNSUPPORTED:
   default:
@@ -54,6 +48,22 @@ std::shared_ptr<Binary> ParseFile(const std::string& acFile)
 
   std::shared_ptr<Binary> pBinary = pParser->Parse();
 
+  return pBinary;
+}
+
+std::shared_ptr<Binary> ParseFile(const std::string& acFile)
+{
+  Reader reader{};
+  if (!reader.LoadFromFile(acFile))
+  {
+    spdlog::error("Failed to load to-parse file");
+    return nullptr;
+  }
+
+  std::shared_ptr<Binary> pBinary = ParseFile(reader);
+
+  // TODO: if ParseFile(reader) is directly called, no filename is set
+  // this prolly doesnt matter, we dont use it rn anyway
   pBinary->filename = acFile;
 
   return pBinary;

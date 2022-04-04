@@ -27,7 +27,7 @@ void DisassemblyLayer::UpdateLogic()
   {
     capstoneOutput.Destroy();
 
-    std::shared_ptr<Binary> pBinary = Parsing::ParseFile(std::move(fileToDisassemble));
+    std::shared_ptr<Binary> pBinary = Parsing::ParseFile(fileToDisassemble);
     //capstoneOutput.DisassembleLinear(pBinary);
     capstoneOutput.DisassembleRecursive(pBinary);
 
