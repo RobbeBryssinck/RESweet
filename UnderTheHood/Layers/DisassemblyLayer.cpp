@@ -42,6 +42,10 @@ void DisassemblyLayer::UpdateUI()
 
   ImGui::Begin("Disassembly");
 
+  float itemWidth = -ImGui::CalcItemWidth();
+  //float itemWidth = -1;
+  ImGui::PushItemWidth(itemWidth);
+
   ImGui::Text("Count: %d", count);
 
   if (ImGui::Button("Disassemble"))
@@ -71,6 +75,8 @@ void DisassemblyLayer::UpdateUI()
         spdlog::error("Function with address {:X} not found.", address);
     }
   }
+
+  ImGui::PopItemWidth();
 
   ImGui::End();
 }
@@ -238,7 +244,7 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleRecursive(std::shared_ptr<Bina
       continue;
 
     uint64_t offset = address - pText->virtualAddress - apBinary->imageBase;
-    const uint8_t* pInstructions = pText->pBytes.get() + offset;
+    const uint8_t* pData = pText->pBytes.get() + offset;
     size_t size = pText->size - offset;
 
     printf("# Disassembling new target: 0x%016jx\n", address);
@@ -246,14 +252,14 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleRecursive(std::shared_ptr<Bina
     Function& function = functions[address];
     function.address = address;
 
-    while (cs_disasm_iter(handle, &pInstructions, &size, &address, instruction))
+    while (cs_disasm_iter(handle, &pData, &size, &address, instruction))
     {
       if (instruction->id == X86_INS_INVALID || instruction->size == 0)
         break;
 
       processedAddresses.insert(instruction->address);
 
-      DisassemblyLayer::CapstoneOutput::PrintInstruction(instruction);
+      //DisassemblyLayer::CapstoneOutput::PrintInstruction(instruction);
       function.instructions.push_back(*instruction);
 
       bool isControlInstruction = false;
@@ -291,28 +297,14 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleRecursive(std::shared_ptr<Bina
       if (target && !processedAddresses.contains(target) && pText->Contains(target - apBinary->imageBase))
       {
         addressQueue.push(target);
-        printf(" -> New target found: 0x%016jx\n", target);
+        //printf(" -> New target found: 0x%016jx\n", target);
       }
 
-      bool stop = false;
-      switch (instruction->id)
-      {
-      case X86_INS_JMP:
-      case X86_INS_LJMP:
-      case X86_INS_RET:
-      case X86_INS_RETF:
-      case X86_INS_RETFQ:
-        stop = true;
-        break;
-      default:
-        stop = false;
-      }
-
-      if (stop)
+      if (IsEndOfFunction(instruction, size, address, pData))
         break;
     }
 
-    printf("----------\n");
+    //printf("----------\n");
 
     //function.size = ?
     //function.instructions = ?
@@ -341,4 +333,23 @@ bool DisassemblyLayer::CapstoneOutput::IsControlInstruction(uint8_t aInstruction
   default:
     return false;
   }
+}
+
+bool DisassemblyLayer::CapstoneOutput::IsEndOfFunction(cs_insn* apInstruction, size_t aSize, uint64_t aAddress, const uint8_t* apData)
+{
+  cs_insn* pInstruction = apInstruction;
+  size_t size = aSize;
+  uint64_t address = aAddress;
+  const uint8_t* pData = apData;
+
+  if (!cs_disasm_iter(handle, &pData, &size, &address, pInstruction))
+    return true;
+
+  // TODO: this is flawed, not all functions have INT3 padding
+  if (pInstruction->id == X86_INS_INVALID
+      || pInstruction->id == X86_INS_INT3
+      || pInstruction->size == 0)
+    return true;
+
+  return false;
 }

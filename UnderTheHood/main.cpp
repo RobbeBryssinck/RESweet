@@ -9,6 +9,7 @@
 #include "Application.h"
 #include "Disassembly/Disassembly.h"
 #include "Layers/DisassemblyLayer.h"
+#include "Layers/StringsLayer.h"
 
 void InitializeLogger()
 {
@@ -22,11 +23,15 @@ int main(int argc, char* argv[])
 {
   InitializeLogger();
 
-  DisassemblyLayer layer;
-  layer.Setup();
+  DisassemblyLayer disassemblyLayer;
+  disassemblyLayer.Setup();
+
+  StringsLayer stringsLayer;
+  stringsLayer.Setup();
 
   Application application;
-  application.AddLayer(&layer);
+  application.AddLayer(&disassemblyLayer);
+  application.AddLayer(&stringsLayer);
   application.Run();
 
   return 0;

@@ -28,6 +28,7 @@ public:
   private:
     bool SetupDisassembly(std::shared_ptr<Binary> apBinary);
     bool IsControlInstruction(uint8_t aInstruction) const;
+    bool IsEndOfFunction(cs_insn* apInstruction, size_t aSize, uint64_t aAddress, const uint8_t* apData);
 
   public:
     bool DisassembleLinear(std::shared_ptr<Binary> apBinary);
