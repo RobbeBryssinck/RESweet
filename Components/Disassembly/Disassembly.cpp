@@ -189,7 +189,7 @@ bool DisassembleRecursive(std::shared_ptr<Binary> apBinary, Functions& aFunction
     const uint8_t* pData = pText->pBytes.get() + offset;
     size_t size = pText->size - offset;
 
-    spdlog::debug("# Disassembling new target: 0x%016jx\n", address);
+    spdlog::debug("Disassembling new target: 0x%016jx\n", address);
 
     Function& function = aFunctions[address];
     function.address = address;
@@ -237,11 +237,13 @@ bool DisassembleRecursive(std::shared_ptr<Binary> apBinary, Functions& aFunction
       }
 
       if (target && !processedAddresses.contains(target) && pText->Contains(target - apBinary->imageBase))
-      {
         addressQueue.push(target);
-      }
 
       if (IsEndOfFunction(handle, instruction, size, address, pData))
+        break;
+
+      // if function only contains 1 jump instruction, assume it's its own thing
+      if (instruction->id == X86_INS_JMP && function.instructions.size() == 1)
         break;
     }
 

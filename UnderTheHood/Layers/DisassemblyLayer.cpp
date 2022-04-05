@@ -25,7 +25,9 @@ void DisassemblyLayer::UpdateLogic()
   if (shouldDisassemble)
   {
     std::shared_ptr<Binary> pBinary = Parsing::ParseFile(fileToDisassemble);
-    functions = Disassembly::Disassemble(pBinary);
+
+    if (pBinary)
+      functions = Disassembly::Disassemble(pBinary);
 
     shouldDisassemble = false;
   }
