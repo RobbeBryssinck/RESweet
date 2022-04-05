@@ -42,10 +42,6 @@ void DisassemblyLayer::UpdateUI()
 
   ImGui::Begin("Disassembly");
 
-  float itemWidth = -ImGui::CalcItemWidth();
-  //float itemWidth = -1;
-  ImGui::PushItemWidth(itemWidth);
-
   ImGui::Text("Count: %d", count);
 
   if (ImGui::Button("Disassemble"))
@@ -69,14 +65,40 @@ void DisassemblyLayer::UpdateUI()
         spdlog::info("Function address: {:X}, size: {}, instruction count: {}", function.address, function.size, function.instructions.size());
 
         for (cs_insn& instruction : function.instructions)
-          DisassemblyLayer::CapstoneOutput::PrintInstruction(&instruction);
+          printf(DisassemblyLayer::CapstoneOutput::BuildInstructionString(&instruction).c_str());
       }
       else
         spdlog::error("Function with address {:X} not found.", address);
     }
-  }
 
-  ImGui::PopItemWidth();
+    ImGui::Separator();
+
+    for (auto& function : capstoneOutput.functions)
+    {
+      static std::string functionOutput = "";
+      if (ImGui::Button(function.second.name.c_str()))
+      {
+        for (cs_insn& instruction : function.second.instructions)
+          functionOutput += DisassemblyLayer::CapstoneOutput::BuildInstructionString(&instruction);
+
+        ImGui::OpenPopup(function.second.name.c_str());
+      }
+
+      ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+      ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+      if (ImGui::BeginPopupModal(function.second.name.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
+      {
+        static ImGuiInputTextFlags flags = ImGuiInputTextFlags_ReadOnly;
+        ImGui::InputTextMultiline("##source", functionOutput.data(), functionOutput.size(), ImVec2(1000, 500), flags);
+
+        if (ImGui::Button("Close"))
+            ImGui::CloseCurrentPopup();
+
+        ImGui::EndPopup();
+      }
+    }
+  }
 
   ImGui::End();
 }
@@ -86,19 +108,21 @@ void DisassemblyLayer::OnEvent(const Event& acEvent)
 
 }
 
-void DisassemblyLayer::CapstoneOutput::PrintInstruction(cs_insn* apInstruction)
+std::string DisassemblyLayer::CapstoneOutput::BuildInstructionString(cs_insn* apInstruction)
 {
-  printf("0x%016jx: ", apInstruction->address);
+  std::string instructionString = fmt::format("{:#018x}: ", apInstruction->address);
 
   for (size_t j = 0; j < 16; j++)
   {
     if (j < apInstruction->size)
-      printf("%02x ", apInstruction->bytes[j]);
+      instructionString += fmt::format("{:02x} ", apInstruction->bytes[j]);
     else
-      printf("   ");
+      instructionString += "   ";
   }
 
-  printf("%-12s %s\n", apInstruction->mnemonic, apInstruction->op_str);
+  instructionString += fmt::format("{:<12}{}\n", apInstruction->mnemonic, apInstruction->op_str);
+
+  return instructionString;
 }
 
 void DisassemblyLayer::CapstoneOutput::Destroy()
@@ -251,6 +275,7 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleRecursive(std::shared_ptr<Bina
 
     Function& function = functions[address];
     function.address = address;
+    function.name = fmt::format("sub_{:X}", address);
 
     while (cs_disasm_iter(handle, &pData, &size, &address, instruction))
     {

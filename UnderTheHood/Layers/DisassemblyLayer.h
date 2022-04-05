@@ -19,11 +19,12 @@ public:
     struct Function
     {
       uint64_t address = 0;
+      std::string name = "";
       size_t size = 0;
       std::vector<cs_insn> instructions{};
     };
 
-    static void PrintInstruction(cs_insn* apInstruction);
+    static std::string BuildInstructionString(cs_insn* apInstruction);
 
   private:
     bool SetupDisassembly(std::shared_ptr<Binary> apBinary);
