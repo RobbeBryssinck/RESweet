@@ -8,7 +8,7 @@ project "Disassembly"
    {
       "../../Vendor/spdlog/include",
       "../../Vendor/capstone/include",
-      "../BinLoader"
+      "../"
    }
 
    libdirs

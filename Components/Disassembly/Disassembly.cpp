@@ -1,7 +1,5 @@
 #include "Disassembly.h"
 
-#include <Binary.h>
-
 #include <spdlog/spdlog.h>
 
 #include <memory>
@@ -21,8 +19,6 @@ private:
   bool IsEndOfFunction(cs_insn* apInstruction, size_t aSize, uint64_t aAddress, const uint8_t* apData);
 
 public:
-  void Destroy();
-
   bool DisassembleLinear(std::shared_ptr<Binary> apBinary, Functions& aFunctions);
   bool DisassembleRecursive(std::shared_ptr<Binary> apBinary, Functions& aFunctions);
 
@@ -32,15 +28,6 @@ public:
   size_t instructionCount = 0;
   cs_insn* instructions = nullptr;
 };
-
-void CapstoneOutput::Destroy()
-{
-  if (IsDisassembled())
-  {
-    cs_free(instructions, instructionCount);
-    cs_close(&handle);
-  }
-}
 
 bool CapstoneOutput::SetupDisassembly(std::shared_ptr<Binary> apBinary)
 {
@@ -129,6 +116,9 @@ bool CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary> apBinary, Functio
     // TODO: is this right if i >= instructionCount?
     function.size = instruction.address - function.address;
   }
+
+  cs_free(instructions, instructionCount);
+  cs_close(&handle);
 
   return true;
 }
@@ -243,10 +233,8 @@ bool CapstoneOutput::DisassembleRecursive(std::shared_ptr<Binary> apBinary, Func
   instructionCount = 1;
   instructions = instruction;
 
-  /*
   cs_free(instruction, 1);
   cs_close(&handle);
-  */
 
   return true;
 }
@@ -284,7 +272,7 @@ bool CapstoneOutput::IsEndOfFunction(cs_insn* apInstruction, size_t aSize, uint6
   return false;
 }
 
-Functions Disassemble(std::shared_ptr<Binary> apBinary, const bool aRecursive = true)
+Functions Disassemble(std::shared_ptr<Binary> apBinary, const bool aRecursive)
 {
   CapstoneOutput capstoneOutput{};
   Functions functions{};

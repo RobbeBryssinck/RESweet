@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Binary.h>
+#include <BinLoader/Binary.h>
 
 #include <capstone/capstone.h>
 

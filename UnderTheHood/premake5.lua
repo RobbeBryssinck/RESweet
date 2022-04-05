@@ -22,6 +22,7 @@ project "UnderTheHood"
 
    links "RECore"
    links "BinLoader"
+   links "Disassembly"
    links "d3d11"
    links "imgui"
    links "ImGuiImpl"
