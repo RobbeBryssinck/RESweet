@@ -59,48 +59,63 @@ void DisassemblyLayer::UpdateUI()
     ImGui::InputScalar("Address", ImGuiDataType_U64, &address, 0, 0, "%" PRIx64, ImGuiInputTextFlags_CharsHexadecimal);
     if (ImGui::Button("Get function") && address)
     {
-      if (capstoneOutput.functions.contains(address))
-      {
-        CapstoneOutput::Function& function = capstoneOutput.functions[address];
-        spdlog::info("Function address: {:X}, size: {}, instruction count: {}", function.address, function.size, function.instructions.size());
-
-        for (cs_insn& instruction : function.instructions)
-          printf(DisassemblyLayer::CapstoneOutput::BuildInstructionString(&instruction).c_str());
-      }
-      else
+      auto functionIt = capstoneOutput.functions.find(address);
+      if (functionIt == capstoneOutput.functions.end())
         spdlog::error("Function with address {:X} not found.", address);
+      else
+      {
+        ImGui::OpenPopup(functionIt->second.name.c_str());
+        modalFunction = functionIt->second;
+      }
     }
 
     ImGui::Separator();
 
-    for (auto& function : capstoneOutput.functions)
+    for (const auto& function : capstoneOutput.functions)
     {
-      static std::string functionOutput = "";
       if (ImGui::Button(function.second.name.c_str()))
       {
-        for (cs_insn& instruction : function.second.instructions)
-          functionOutput += DisassemblyLayer::CapstoneOutput::BuildInstructionString(&instruction);
-
         ImGui::OpenPopup(function.second.name.c_str());
-      }
-
-      ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-      ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-
-      if (ImGui::BeginPopupModal(function.second.name.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
-      {
-        static ImGuiInputTextFlags flags = ImGuiInputTextFlags_ReadOnly;
-        ImGui::InputTextMultiline("##source", functionOutput.data(), functionOutput.size(), ImVec2(1000, 500), flags);
-
-        if (ImGui::Button("Close"))
-            ImGui::CloseCurrentPopup();
-
-        ImGui::EndPopup();
+        modalFunction = function.second;
       }
     }
   }
 
+  if (modalFunction)
+    RenderDisassemblyModal(modalFunction);
+
   ImGui::End();
+}
+
+void DisassemblyLayer::RenderDisassemblyModal(const CapstoneOutput::Function& acFunction)
+{
+  ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+  ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+
+  if (ImGui::BeginPopupModal(acFunction.name.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
+  {
+    static std::string functionOutput = "";
+    static uint64_t cachedAddress = 0;
+
+    if (acFunction.address != cachedAddress)
+    {
+      cachedAddress = acFunction.address;
+      functionOutput.clear();
+      for (const cs_insn& instruction : acFunction.instructions)
+        functionOutput += DisassemblyLayer::CapstoneOutput::BuildInstructionString(&instruction);
+    }
+
+    static ImGuiInputTextFlags flags = ImGuiInputTextFlags_ReadOnly;
+    ImGui::InputTextMultiline("##source", functionOutput.data(), functionOutput.size(), ImVec2(1000, 500), flags);
+
+    if (ImGui::Button("Close"))
+    {
+        ImGui::CloseCurrentPopup();
+        modalFunction = CapstoneOutput::Function{};
+    }
+
+    ImGui::EndPopup();
+  }
 }
 
 void DisassemblyLayer::OnEvent(const Event& acEvent)
@@ -108,7 +123,7 @@ void DisassemblyLayer::OnEvent(const Event& acEvent)
 
 }
 
-std::string DisassemblyLayer::CapstoneOutput::BuildInstructionString(cs_insn* apInstruction)
+std::string DisassemblyLayer::CapstoneOutput::BuildInstructionString(const cs_insn* apInstruction)
 {
   std::string instructionString = fmt::format("{:#018x}: ", apInstruction->address);
 
@@ -284,7 +299,6 @@ bool DisassemblyLayer::CapstoneOutput::DisassembleRecursive(std::shared_ptr<Bina
 
       processedAddresses.insert(instruction->address);
 
-      //DisassemblyLayer::CapstoneOutput::PrintInstruction(instruction);
       function.instructions.push_back(*instruction);
 
       bool isControlInstruction = false;
