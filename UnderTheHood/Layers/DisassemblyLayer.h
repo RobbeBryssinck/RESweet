@@ -13,7 +13,6 @@
 class DisassemblyLayer : public Layer
 {
 public:
-  // TODO: move the disassembly to its own component
   struct CapstoneOutput
   {
     struct Function

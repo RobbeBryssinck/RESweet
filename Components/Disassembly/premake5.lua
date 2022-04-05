@@ -7,7 +7,14 @@ project "Disassembly"
    includedirs 
    {
       "../../Vendor/spdlog/include",
+      "../../Vendor/capstone/include",
       "../BinLoader"
    }
 
+   libdirs
+   {
+      "../../Vendor/capstone"
+   }
+
    links "BinLoader"
+   links "capstone"
