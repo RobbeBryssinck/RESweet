@@ -5,6 +5,7 @@
 Application* Application::s_application = nullptr;
 
 Application::Application()
+  : uiRunner("Under The Hood")
 {
   // TODO: RE_ASSERT(s_application);
   s_application = this;

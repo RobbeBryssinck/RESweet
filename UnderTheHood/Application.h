@@ -25,7 +25,7 @@ private:
   static Application* s_application;
 
   std::vector<Layer*> layers{};
-  imgui_runner uiRunner{};
+  imgui_runner uiRunner;
 
   bool isRunning = true;
 };

@@ -2,13 +2,12 @@
 
 #include <windows.h>
 #include <WinUser.h>
-
-bool RunImGui();
+#include <string>
 
 class imgui_runner
 {
 public:
-  imgui_runner();
+  imgui_runner(const std::string& acName);
   ~imgui_runner();
 
   void BeginFrame();
