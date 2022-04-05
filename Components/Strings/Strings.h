@@ -11,13 +11,7 @@
 namespace Strings
 {
 
-// TODO: ehh?
-bool IsEndOfStringChar(char aChar)
-{
-  return aChar == '\00' || aChar == '\n';
-}
-
-std::vector<std::string> GetStringsFromData(Reader& aReader, const int acStringLength = 5)
+std::vector<std::string> GetStringsFromData(Reader& aReader, const int acMinStringLength = 5)
 {
   std::vector<std::string> strings{};
 
@@ -29,13 +23,14 @@ std::vector<std::string> GetStringsFromData(Reader& aReader, const int acStringL
   {
     if (isascii(currentCharacter))
     {
-      if (IsEndOfStringChar(currentCharacter))
+      if (currentCharacter == '\00')
       {
         if (startPosition != invalidPosition
-            && aReader.position - startPosition >= acStringLength)
+            && aReader.position - startPosition >= (acMinStringLength + 1)) // +1 to min string length to account for null byte
         {
           aReader.position = startPosition;
           strings.push_back(std::move(aReader.ReadString()));
+          spdlog::debug("String at position {:X}: {}", startPosition, strings.back());
         }
 
         startPosition = invalidPosition;

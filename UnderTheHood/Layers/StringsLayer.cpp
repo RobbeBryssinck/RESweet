@@ -19,7 +19,7 @@ void StringsLayer::UpdateLogic()
 
     shouldCollectStrings = false;
 
-    for (auto& string : strings)
+    for (std::string& string : strings)
       spdlog::info(string);
   }
 }
