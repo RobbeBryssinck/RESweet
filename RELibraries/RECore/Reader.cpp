@@ -4,12 +4,6 @@
 #include <fstream>
 #include <spdlog/spdlog.h>
 
-Reader::Reader(Reader&& aReader) noexcept
-{
-  pBuffer = std::move(aReader.pBuffer);
-  size = aReader.size;
-}
-
 bool Reader::LoadFromFile(const std::string& acFile)
 {
   if (!std::filesystem::exists(acFile))
@@ -27,16 +21,16 @@ bool Reader::LoadFromFile(const std::string& acFile)
     return false;
   }
 
-  pBuffer = std::make_unique<uint8_t[]>(size);
+  pData = std::make_unique<uint8_t[]>(size);
 
-  file.read(reinterpret_cast<char*>(pBuffer.get()), size);
+  file.read(reinterpret_cast<char*>(pData.get()), size);
 
   return true;
 }
 
 bool Reader::ReadImpl(void* apDestination, const size_t acLength, bool aPeak)
 {
-  if (acLength + position > size)
+  if (IsOverflow(acLength))
     return false;
 
   std::memcpy(apDestination, GetDataAtPosition(), acLength);
@@ -52,10 +46,4 @@ std::string Reader::ReadString()
   std::string string = std::string(reinterpret_cast<const char*>(GetDataAtPosition()));
   Advance(string.size() + 1);
   return string;
-}
-
-// don't abuse this, cause unique_ptr and all
-uint8_t* Reader::GetDataAtPosition()
-{
-  return pBuffer.get() + position;
 }

@@ -25,12 +25,14 @@ int main(int argc, char* argv[])
 {
   InitializeLogger();
 
+  /*
   std::string str1 = "Hello";
   std::string str2 = "Good morning";
 
   Writer writer{};
   writer.WriteImpl((void*)str1.c_str(), str1.size());
   writer.WriteImpl((void*)str2.c_str(), str2.size());
+  */
 
   DisassemblyLayer disassemblyLayer;
   disassemblyLayer.Setup();
