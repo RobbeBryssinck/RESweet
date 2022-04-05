@@ -21,7 +21,7 @@ public:
 
 private:
 
-  std::string BuildInstructionString(const cs_insn* apInstruction);
+  std::string BuildInstructionString(const cs_insn& apInstruction);
 
   void RenderDisassemblyModal(const Disassembly::Function& acFunction);
 

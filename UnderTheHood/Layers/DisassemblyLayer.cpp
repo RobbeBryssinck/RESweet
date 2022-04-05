@@ -89,21 +89,59 @@ void DisassemblyLayer::RenderDisassemblyModal(const Disassembly::Function& acFun
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
   ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
+  bool drawNewFunction = false;
+
   if (ImGui::BeginPopupModal(acFunction.name.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
   {
-    static std::string functionOutput = "";
-    static uint64_t cachedAddress = 0;
-
-    if (acFunction.address != cachedAddress)
+    for (const cs_insn& instruction : acFunction.instructions)
     {
-      cachedAddress = acFunction.address;
-      functionOutput.clear();
-      for (const cs_insn& instruction : acFunction.instructions)
-        functionOutput += DisassemblyLayer::BuildInstructionString(&instruction);
-    }
+      std::string instructionString = BuildInstructionString(instruction);
+      ImGui::Text(instructionString.c_str());
+      if (ImGui::BeginPopupContextItem(instructionString.c_str()))
+      {
+        if (ImGui::Selectable("Copy instruction"))
+        {
+          ImGui::LogToClipboard();
+          ImGui::LogText(instructionString.c_str());
+          ImGui::LogFinish();
+        }
 
-    static ImGuiInputTextFlags flags = ImGuiInputTextFlags_ReadOnly;
-    ImGui::InputTextMultiline("##source", functionOutput.data(), functionOutput.size(), ImVec2(1000, 500), flags);
+        bool isCall = instruction.id == X86_INS_CALL;
+        if (!isCall)
+          ImGui::BeginDisabled();
+
+        if (ImGui::Selectable("Go to function"))
+        {
+          // TODO: you should really make use of the detail struct of capstone
+          // or, again, make your own instruction interface, since detail is allocated and that gets messy
+          std::stringstream ss;
+          ss << std::hex << instruction.op_str;
+          uint64_t target = 0;
+          ss >> target;
+
+          if (target)
+          {
+            auto newFunctionIt = functions.find(target);
+
+            if (newFunctionIt == functions.end())
+              spdlog::error("Could not find function with address {:x}", target);
+            else
+            {
+              modalFunction = newFunctionIt->second;
+              drawNewFunction = true;
+            }
+          }
+        }
+
+        if (!isCall)
+          ImGui::EndDisabled();
+
+        ImGui::EndPopup();
+      }
+
+      if (drawNewFunction)
+        break;
+    }
 
     if (ImGui::Button("Close"))
     {
@@ -111,8 +149,14 @@ void DisassemblyLayer::RenderDisassemblyModal(const Disassembly::Function& acFun
         modalFunction = Disassembly::Function{};
     }
 
+    if (drawNewFunction)
+        ImGui::CloseCurrentPopup();
+
     ImGui::EndPopup();
   }
+
+  if (drawNewFunction)
+    ImGui::OpenPopup(modalFunction.name.c_str());
 }
 
 void DisassemblyLayer::OnEvent(const Event& acEvent)
@@ -120,19 +164,19 @@ void DisassemblyLayer::OnEvent(const Event& acEvent)
 
 }
 
-std::string DisassemblyLayer::BuildInstructionString(const cs_insn* apInstruction)
+std::string DisassemblyLayer::BuildInstructionString(const cs_insn& apInstruction)
 {
-  std::string instructionString = fmt::format("{:#018x}: ", apInstruction->address);
+  std::string instructionString = fmt::format("{:#018x}: ", apInstruction.address);
 
   for (size_t j = 0; j < 16; j++)
   {
-    if (j < apInstruction->size)
-      instructionString += fmt::format("{:02x} ", apInstruction->bytes[j]);
+    if (j < apInstruction.size)
+      instructionString += fmt::format("{:02x} ", apInstruction.bytes[j]);
     else
       instructionString += "   ";
   }
 
-  instructionString += fmt::format("{:<12}{}\n", apInstruction->mnemonic, apInstruction->op_str);
+  instructionString += fmt::format("{:<12}{}\n", apInstruction.mnemonic, apInstruction.op_str);
 
   return instructionString;
 }

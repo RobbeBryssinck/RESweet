@@ -90,6 +90,27 @@ bool IsEndOfFunction(csh aHandle, cs_insn* apInstruction, size_t aSize, uint64_t
   return false;
 }
 
+// TODO: signed? ehh?
+int64_t GetControlFlowTarget(const cs_insn& acInstruction)
+{
+  int64_t target = 0;
+
+  for (size_t i = 0; i < acInstruction.detail->groups_count; i++)
+  {
+    if (IsControlInstruction(acInstruction.detail->groups[i]))
+    {
+      for (size_t j = 0; j < acInstruction.detail->x86.op_count; j++)
+      {
+        cs_x86_op* operand = &acInstruction.detail->x86.operands[j];
+        if (operand->type == X86_OP_IMM)
+          target = operand->imm;
+      }
+    }
+  }
+
+  return target;
+}
+
 bool DisassembleLinear(std::shared_ptr<Binary> apBinary, Functions& aFunctions)
 {
   csh handle = SetupDisassembly(apBinary);
@@ -221,20 +242,7 @@ bool DisassembleRecursive(std::shared_ptr<Binary> apBinary, Functions& aFunction
         continue;
       }
 
-      int64_t target = 0;
-      cs_x86_op* operand;
-      for (size_t i = 0; i < instruction->detail->groups_count; i++)
-      {
-        if (IsControlInstruction(instruction->detail->groups[i]))
-        {
-          for (size_t j = 0; j < instruction->detail->x86.op_count; j++)
-          {
-            operand = &instruction->detail->x86.operands[j];
-            if (operand->type == X86_OP_IMM)
-              target = operand->imm;
-          }
-        }
-      }
+      int64_t target = GetControlFlowTarget(*instruction);
 
       if (target && !processedAddresses.contains(target) && pText->Contains(target - apBinary->imageBase))
         addressQueue.push(target);
@@ -242,7 +250,7 @@ bool DisassembleRecursive(std::shared_ptr<Binary> apBinary, Functions& aFunction
       if (IsEndOfFunction(handle, instruction, size, address, pData))
         break;
 
-      // if function only contains 1 jump instruction, assume it's its own thing
+      // if function only contains 1 jump instruction and nothing else, assume it's its own thing
       if (instruction->id == X86_INS_JMP && function.instructions.size() == 1)
         break;
     }
