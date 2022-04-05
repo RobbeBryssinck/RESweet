@@ -10,27 +10,11 @@
 namespace Disassembly
 {
 
-// TODO: class prolly isn't really necessary anymore
-class CapstoneOutput
+// TODO: std optional?
+csh SetupDisassembly(std::shared_ptr<Binary> apBinary)
 {
-private:
-  bool SetupDisassembly(std::shared_ptr<Binary> apBinary);
-  bool IsControlInstruction(uint8_t aInstruction) const;
-  bool IsEndOfFunction(cs_insn* apInstruction, size_t aSize, uint64_t aAddress, const uint8_t* apData);
+  csh handle = 0;
 
-public:
-  bool DisassembleLinear(std::shared_ptr<Binary> apBinary, Functions& aFunctions);
-  bool DisassembleRecursive(std::shared_ptr<Binary> apBinary, Functions& aFunctions);
-
-  bool IsDisassembled() const { return handle; }
-
-  size_t handle = 0;
-  size_t instructionCount = 0;
-  cs_insn* instructions = nullptr;
-};
-
-bool CapstoneOutput::SetupDisassembly(std::shared_ptr<Binary> apBinary)
-{
   cs_arch architecture{};
   switch (apBinary->architecture)
   {
@@ -39,11 +23,11 @@ bool CapstoneOutput::SetupDisassembly(std::shared_ptr<Binary> apBinary)
     break;
   case Binary::Architecture::NONE:
     spdlog::error("No architecture selected");
-    return false;
+    return handle;
     break;
   default:
     spdlog::error("No matching capstone architecture found");
-    return false;
+    return handle;
   }
 
   cs_mode mode{};
@@ -57,25 +41,59 @@ bool CapstoneOutput::SetupDisassembly(std::shared_ptr<Binary> apBinary)
     break;
   case Binary::Mode::NONE:
     spdlog::error("No mode selected");
-    return false;
+    return handle;
     break;
   default:
     spdlog::error("No matching capstone mode found");
-    return false;
+    return handle;
   }
 
   if (cs_open(architecture, mode, &handle) != CS_ERR_OK)
   {
     spdlog::error("Failed to initialize capstone handle");
-    return false;
+    return handle;
   }
 
-  return true;
+  return handle;
 }
 
-bool CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary> apBinary, Functions& aFunctions)
+bool IsControlInstruction(uint8_t aInstruction)
 {
-  if (!SetupDisassembly(apBinary))
+  switch (aInstruction)
+  {
+  case CS_GRP_JUMP:
+  case CS_GRP_CALL:
+  case CS_GRP_RET:
+  case CS_GRP_IRET:
+    return true;
+  default:
+    return false;
+  }
+}
+
+bool IsEndOfFunction(csh aHandle, cs_insn* apInstruction, size_t aSize, uint64_t aAddress, const uint8_t* apData)
+{
+  cs_insn* pInstruction = apInstruction;
+  size_t size = aSize;
+  uint64_t address = aAddress;
+  const uint8_t* pData = apData;
+
+  if (!cs_disasm_iter(aHandle, &pData, &size, &address, pInstruction))
+    return true;
+
+  // TODO: this is flawed, not all functions have INT3 padding
+  if (pInstruction->id == X86_INS_INVALID
+      || pInstruction->id == X86_INS_INT3
+      || pInstruction->size == 0)
+    return true;
+
+  return false;
+}
+
+bool DisassembleLinear(std::shared_ptr<Binary> apBinary, Functions& aFunctions)
+{
+  csh handle = SetupDisassembly(apBinary);
+  if (handle == 0)
     return false;
 
   Section* pText = apBinary->GetTextSection();
@@ -85,7 +103,8 @@ bool CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary> apBinary, Functio
     return false;
   }
 
-  instructionCount = cs_disasm(handle, pText->pBytes.get(), pText->size, pText->virtualAddress + apBinary->imageBase, 0, &instructions);
+  cs_insn* instructions;
+  size_t instructionCount = cs_disasm(handle, pText->pBytes.get(), pText->size, pText->virtualAddress + apBinary->imageBase, 0, &instructions);
   if (instructionCount == 0)
   {
     spdlog::error("Disassembly failed, error: {}", cs_strerror(cs_errno(handle)));
@@ -123,9 +142,10 @@ bool CapstoneOutput::DisassembleLinear(std::shared_ptr<Binary> apBinary, Functio
   return true;
 }
 
-bool CapstoneOutput::DisassembleRecursive(std::shared_ptr<Binary> apBinary, Functions& aFunctions)
+bool DisassembleRecursive(std::shared_ptr<Binary> apBinary, Functions& aFunctions)
 {
-  if (!SetupDisassembly(apBinary))
+  csh handle = SetupDisassembly(apBinary);
+  if (handle == 0)
     return false;
 
   Section* pText = apBinary->GetTextSection();
@@ -221,7 +241,7 @@ bool CapstoneOutput::DisassembleRecursive(std::shared_ptr<Binary> apBinary, Func
         addressQueue.push(target);
       }
 
-      if (IsEndOfFunction(instruction, size, address, pData))
+      if (IsEndOfFunction(handle, instruction, size, address, pData))
         break;
     }
 
@@ -230,57 +250,20 @@ bool CapstoneOutput::DisassembleRecursive(std::shared_ptr<Binary> apBinary, Func
     //function.instructions = ?
   }
 
-  instructionCount = 1;
-  instructions = instruction;
-
   cs_free(instruction, 1);
   cs_close(&handle);
 
   return true;
 }
 
-bool CapstoneOutput::IsControlInstruction(uint8_t aInstruction) const
-{
-  switch (aInstruction)
-  {
-  case CS_GRP_JUMP:
-  case CS_GRP_CALL:
-  case CS_GRP_RET:
-  case CS_GRP_IRET:
-    return true;
-  default:
-    return false;
-  }
-}
-
-bool CapstoneOutput::IsEndOfFunction(cs_insn* apInstruction, size_t aSize, uint64_t aAddress, const uint8_t* apData)
-{
-  cs_insn* pInstruction = apInstruction;
-  size_t size = aSize;
-  uint64_t address = aAddress;
-  const uint8_t* pData = apData;
-
-  if (!cs_disasm_iter(handle, &pData, &size, &address, pInstruction))
-    return true;
-
-  // TODO: this is flawed, not all functions have INT3 padding
-  if (pInstruction->id == X86_INS_INVALID
-      || pInstruction->id == X86_INS_INT3
-      || pInstruction->size == 0)
-    return true;
-
-  return false;
-}
-
 Functions Disassemble(std::shared_ptr<Binary> apBinary, const bool aRecursive)
 {
-  CapstoneOutput capstoneOutput{};
   Functions functions{};
 
   if (aRecursive)
-    capstoneOutput.DisassembleRecursive(apBinary, functions);
+    DisassembleRecursive(apBinary, functions);
   else
-    capstoneOutput.DisassembleLinear(apBinary, functions);
+    DisassembleLinear(apBinary, functions);
 
   return functions;
 }
