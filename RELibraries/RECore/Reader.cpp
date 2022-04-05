@@ -39,10 +39,10 @@ bool Reader::ReadImpl(void* apDestination, const size_t acLength, bool aPeak)
   if (acLength + position > size)
     return false;
 
-  std::memcpy(apDestination, pBuffer.get() + position, acLength);
+  std::memcpy(apDestination, GetDataAtPosition(), acLength);
 
   if (!aPeak)
-    position += acLength;
+    Advance(acLength);
 
   return true;
 }
