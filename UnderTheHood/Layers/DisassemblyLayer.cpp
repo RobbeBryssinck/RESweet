@@ -27,26 +27,34 @@ void DisassemblyLayer::UpdateLogic()
 
   if (shouldDisassemble)
   {
+    shouldDisassemble = false;
+
     std::shared_ptr<Binary> pBinary = Parsing::ParseFile(fileToDisassemble);
 
     if (pBinary)
       functions = Disassembly::Disassemble(pBinary);
     else
       fileToDisassemble = "";
-
-    shouldDisassemble = false;
-  }
-
-  if (shouldSave)
-  {
-    SaveToFile();
-    shouldSave = false;
   }
 
   if (shouldLoad)
   {
-    LoadFromFile(fileToLoad);
     shouldLoad = false;
+    Destroy();
+    LoadFromFile(fileToLoad);
+    fileToLoad = "";
+  }
+
+  if (shouldSave)
+  {
+    shouldSave = false;
+    SaveToFile();
+  }
+
+  if (shouldClose)
+  {
+    shouldClose = false;
+    Destroy();
   }
 }
 
@@ -59,8 +67,11 @@ void DisassemblyLayer::UpdateUI()
 
   ImGui::Text("Count: %d", count);
 
-  if (ImGui::Button("Save"))
-    shouldSave = true;
+  if (ImGui::Button("New"))
+  {
+    fileToDisassemble = OpenFileDialogue();
+    shouldDisassemble = true;
+  }
 
   ImGui::SameLine();
 
@@ -70,14 +81,16 @@ void DisassemblyLayer::UpdateUI()
     shouldLoad = true;
   }
 
-  if (ImGui::Button("Disassemble"))
+  if (IsDisassembled())
   {
-    fileToDisassemble = OpenFileDialogue();
-    shouldDisassemble = true;
-  }
+    if (ImGui::Button("Save"))
+      shouldSave = true;
 
-  if (!functions.empty())
-  {
+    ImGui::SameLine();
+
+    if (ImGui::Button("Close"))
+      shouldClose = true;
+
     ImGui::Text("Function count: %d", functions.size());
 
     static uint64_t address = 0;
@@ -284,4 +297,10 @@ void DisassemblyLayer::LoadFromFile(const std::string& acFilename)
       std::copy(std::begin(savedInstruction.operand), std::end(savedInstruction.operand), std::begin(instruction.op_str));
     }
   }
+}
+
+void DisassemblyLayer::Destroy()
+{
+  fileToDisassemble = "";
+  functions.clear();
 }

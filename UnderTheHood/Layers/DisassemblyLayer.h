@@ -21,23 +21,27 @@ public:
 
 private:
 
+  bool IsDisassembled() const { return !functions.empty(); }
+
   std::string BuildInstructionString(const cs_insn& apInstruction);
 
   void RenderDisassemblyModal(const Disassembly::Function& acFunction);
 
   void SaveToFile() const;
   void LoadFromFile(const std::string& acFilename);
+  void Destroy();
 
   uint64_t count = 0;
 
   bool shouldDisassemble = false;
-  bool shouldSave = false;
   bool shouldLoad = false;
+  bool shouldSave = false;
+  bool shouldClose = false;
 
   std::string fileToDisassemble = "";
   std::string fileToLoad = "";
-  Disassembly::Function modalFunction{};
 
+  Disassembly::Function modalFunction{};
   Disassembly::Functions functions{};
 };
 
