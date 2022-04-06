@@ -69,7 +69,8 @@ void DisassemblyLayer::UpdateUI()
 
   if (ImGui::Button("New"))
   {
-    fileToDisassemble = OpenFileDialogue();
+    const std::string dialogueTitle = "Open file to disassemble";
+    fileToDisassemble = OpenFileDialogue(&dialogueTitle);
     shouldDisassemble = true;
   }
 
@@ -77,7 +78,9 @@ void DisassemblyLayer::UpdateUI()
 
   if (ImGui::Button("Load"))
   {
-    fileToLoad = OpenFileDialogue();
+    FileFilters filters{ {"RESweet save file", "*.resf"} };
+    const std::string dialogueTitle = "Open RESweet save file";
+    fileToLoad = OpenFileDialogue(&dialogueTitle, &filters);
     shouldLoad = true;
   }
 
