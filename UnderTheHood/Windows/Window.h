@@ -6,7 +6,6 @@ class Window
 {
 public:
   virtual void Setup() {};
-  virtual void UpdateLogic() {};
-  virtual void UpdateUI() {};
+  virtual void Update() {};
   virtual void OnEvent(const Event& acEvent) {};
 };

@@ -20,12 +20,9 @@ void Application::Run()
 {
   while (isRunning)
   {
-    for (Window* window : windows)
-      window->UpdateLogic();
-
     uiRunner.BeginFrame();
     for (Window* window : windows)
-      window->UpdateUI();
+      window->Update();
     uiRunner.EndFrame();
   }
 }

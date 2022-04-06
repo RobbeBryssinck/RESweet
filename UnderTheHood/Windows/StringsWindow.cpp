@@ -10,28 +10,16 @@ void StringsWindow::Setup()
 {
 }
 
-void StringsWindow::UpdateLogic()
-{
-  if (shouldCollectStrings)
-  {
-    if (strings.size() == 0)
-      strings = Strings::GetStringsFromFile(stringsFilename);
-
-    shouldCollectStrings = false;
-
-    for (std::string& string : strings)
-      spdlog::info(string);
-  }
-}
-
-void StringsWindow::UpdateUI()
+void StringsWindow::Update()
 {
   ImGui::Begin("Strings");
 
   if (ImGui::Button("Get strings"))
   {
-    stringsFilename = OpenFileDialogue();
-    shouldCollectStrings = true;
+    strings = Strings::GetStringsFromFile(OpenFileDialogue());
+
+    for (std::string& string : strings)
+      spdlog::info(string);
   }
 
   ImGui::End();

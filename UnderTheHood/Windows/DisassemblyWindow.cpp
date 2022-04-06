@@ -14,6 +14,7 @@
 
 DisassemblyWindow::~DisassemblyWindow()
 {
+  Destroy();
 }
 
 void DisassemblyWindow::Setup()
@@ -21,13 +22,21 @@ void DisassemblyWindow::Setup()
   count = 0;
 }
 
-void DisassemblyWindow::UpdateLogic()
+void DisassemblyWindow::Update()
 {
+  static bool show = false;
+  ImGui::ShowDemoWindow(&show);
+
+  ImGui::Begin("Disassembly");
+
   count += 1;
 
-  if (shouldDisassemble)
+  ImGui::Text("Count: %d", count);
+
+  if (ImGui::Button("New"))
   {
-    shouldDisassemble = false;
+    const std::string dialogueTitle = "Open file to disassemble";
+    fileToDisassemble = OpenFileDialogue(&dialogueTitle);
 
     std::shared_ptr<Binary> pBinary = Parsing::ParseFile(fileToDisassemble);
 
@@ -37,87 +46,55 @@ void DisassemblyWindow::UpdateLogic()
       fileToDisassemble = "";
   }
 
-  if (shouldLoad)
-  {
-    shouldLoad = false;
-    Destroy();
-    LoadFromFile(fileToLoad);
-    fileToLoad = "";
-  }
-
-  if (shouldSave)
-  {
-    shouldSave = false;
-    SaveToFile();
-  }
-
-  if (shouldClose)
-  {
-    shouldClose = false;
-    Destroy();
-  }
-}
-
-void DisassemblyWindow::UpdateUI()
-{
-  static bool show = false;
-  ImGui::ShowDemoWindow(&show);
-
-  ImGui::Begin("Disassembly");
-
-  ImGui::Text("Count: %d", count);
-
-  if (ImGui::Button("New"))
-  {
-    const std::string dialogueTitle = "Open file to disassemble";
-    fileToDisassemble = OpenFileDialogue(&dialogueTitle);
-    shouldDisassemble = true;
-  }
-
   ImGui::SameLine();
 
   if (ImGui::Button("Load"))
   {
     FileFilters filters{ {"RESweet save file", "*.resf"} };
     const std::string dialogueTitle = "Open RESweet save file";
-    fileToLoad = OpenFileDialogue(&dialogueTitle, &filters);
-    shouldLoad = true;
+    const std::string fileToLoad = OpenFileDialogue(&dialogueTitle, &filters);
+
+    LoadFromFile(fileToLoad);
   }
 
   if (IsDisassembled())
   {
     if (ImGui::Button("Save"))
-      shouldSave = true;
+      SaveToFile();
 
     ImGui::SameLine();
 
     if (ImGui::Button("Close"))
-      shouldClose = true;
+      Destroy();
 
-    ImGui::Text("Function count: %d", functions.size());
-
-    static uint64_t address = 0;
-    ImGui::InputScalar("Address", ImGuiDataType_U64, &address, 0, 0, "%" PRIx64, ImGuiInputTextFlags_CharsHexadecimal);
-    if (ImGui::Button("Get function") && address)
+    // Check again in case the "Close" button was clicked
+    if (IsDisassembled())
     {
-      auto functionIt = functions.find(address);
-      if (functionIt == functions.end())
-        spdlog::error("Function with address {:X} not found.", address);
-      else
+      ImGui::Text("Function count: %d", functions.size());
+
+      static uint64_t address = 0;
+      ImGui::InputScalar("Address", ImGuiDataType_U64, &address, 0, 0, "%" PRIx64, ImGuiInputTextFlags_CharsHexadecimal);
+      if (ImGui::Button("Get function") && address)
       {
-        ImGui::OpenPopup(functionIt->second.name.c_str());
-        modalFunction = functionIt->second;
+        auto functionIt = functions.find(address);
+        if (functionIt == functions.end())
+          spdlog::error("Function with address {:X} not found.", address);
+        else
+        {
+          ImGui::OpenPopup(functionIt->second.name.c_str());
+          modalFunction = functionIt->second;
+        }
       }
-    }
 
-    ImGui::Separator();
+      ImGui::Separator();
 
-    for (const auto& function : functions)
-    {
-      if (ImGui::Button(function.second.name.c_str()))
+      for (const auto& function : functions)
       {
-        ImGui::OpenPopup(function.second.name.c_str());
-        modalFunction = function.second;
+        if (ImGui::Button(function.second.name.c_str()))
+        {
+          ImGui::OpenPopup(function.second.name.c_str());
+          modalFunction = function.second;
+        }
       }
     }
   }
@@ -268,6 +245,8 @@ void DisassemblyWindow::SaveToFile() const
 
 void DisassemblyWindow::LoadFromFile(const std::string& acFilename)
 {
+  Destroy();
+
   Reader reader{};
   if (!reader.LoadFromFile(acFilename))
     return;
@@ -306,4 +285,5 @@ void DisassemblyWindow::Destroy()
 {
   fileToDisassemble = "";
   functions.clear();
+  modalFunction = Disassembly::Function{};
 }

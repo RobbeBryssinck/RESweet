@@ -15,8 +15,7 @@ public:
   ~DisassemblyWindow();
 
   virtual void Setup() override;
-  virtual void UpdateLogic() override;
-  virtual void UpdateUI() override;
+  virtual void Update() override;
   virtual void OnEvent(const Event& acEvent) override;
 
 private:
@@ -33,13 +32,7 @@ private:
 
   uint64_t count = 0;
 
-  bool shouldDisassemble = false;
-  bool shouldLoad = false;
-  bool shouldSave = false;
-  bool shouldClose = false;
-
   std::string fileToDisassemble = "";
-  std::string fileToLoad = "";
 
   Disassembly::Function modalFunction{};
   Disassembly::Functions functions{};

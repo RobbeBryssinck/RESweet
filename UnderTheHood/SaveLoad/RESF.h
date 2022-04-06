@@ -45,6 +45,5 @@ struct RESF
   void Deserialize(Reader& aReader);
 
   Header header{};
-
   std::vector<SavedFunction> functions{};
 };
