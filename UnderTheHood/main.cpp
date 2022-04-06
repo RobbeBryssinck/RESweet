@@ -25,15 +25,15 @@ int main(int argc, char* argv[])
 {
   InitializeLogger();
 
-  DisassemblyWindow disassemblyLayer;
-  disassemblyLayer.Setup();
+  DisassemblyWindow disassemblyWindow;
+  disassemblyWindow.Setup();
 
-  StringsWindow stringsLayer;
-  stringsLayer.Setup();
+  StringsWindow stringsWindow;
+  stringsWindow.Setup();
 
   Application application;
-  application.AddLayer(&disassemblyLayer);
-  application.AddLayer(&stringsLayer);
+  application.AddWindow(&disassemblyWindow);
+  application.AddWindow(&stringsWindow);
   application.Run();
 
   return 0;
