@@ -1,4 +1,4 @@
-#include "DisassemblyLayer.h"
+#include "DisassemblyWindow.h"
 
 #include "../SaveLoad/RESF.h"
 
@@ -12,16 +12,16 @@
 #include <queue>
 #include <set>
 
-DisassemblyLayer::~DisassemblyLayer()
+DisassemblyWindow::~DisassemblyWindow()
 {
 }
 
-void DisassemblyLayer::Setup()
+void DisassemblyWindow::Setup()
 {
   count = 0;
 }
 
-void DisassemblyLayer::UpdateLogic()
+void DisassemblyWindow::UpdateLogic()
 {
   count += 1;
 
@@ -58,7 +58,7 @@ void DisassemblyLayer::UpdateLogic()
   }
 }
 
-void DisassemblyLayer::UpdateUI()
+void DisassemblyWindow::UpdateUI()
 {
   static bool show = false;
   ImGui::ShowDemoWindow(&show);
@@ -128,7 +128,7 @@ void DisassemblyLayer::UpdateUI()
   ImGui::End();
 }
 
-void DisassemblyLayer::RenderDisassemblyModal(const Disassembly::Function& acFunction)
+void DisassemblyWindow::RenderDisassemblyModal(const Disassembly::Function& acFunction)
 {
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
   ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -203,12 +203,12 @@ void DisassemblyLayer::RenderDisassemblyModal(const Disassembly::Function& acFun
     ImGui::OpenPopup(modalFunction.name.c_str());
 }
 
-void DisassemblyLayer::OnEvent(const Event& acEvent)
+void DisassemblyWindow::OnEvent(const Event& acEvent)
 {
 
 }
 
-std::string DisassemblyLayer::BuildInstructionString(const cs_insn& apInstruction)
+std::string DisassemblyWindow::BuildInstructionString(const cs_insn& apInstruction)
 {
   std::string instructionString = fmt::format("{:#018x}: ", apInstruction.address);
 
@@ -225,7 +225,7 @@ std::string DisassemblyLayer::BuildInstructionString(const cs_insn& apInstructio
   return instructionString;
 }
 
-void DisassemblyLayer::SaveToFile() const
+void DisassemblyWindow::SaveToFile() const
 {
   if (fileToDisassemble == "")
     return;
@@ -266,7 +266,7 @@ void DisassemblyLayer::SaveToFile() const
   writer.WriteToFile(filePath.parent_path().string() + "\\" + filename + ".resf");
 }
 
-void DisassemblyLayer::LoadFromFile(const std::string& acFilename)
+void DisassemblyWindow::LoadFromFile(const std::string& acFilename)
 {
   Reader reader{};
   if (!reader.LoadFromFile(acFilename))
@@ -302,7 +302,7 @@ void DisassemblyLayer::LoadFromFile(const std::string& acFilename)
   }
 }
 
-void DisassemblyLayer::Destroy()
+void DisassemblyWindow::Destroy()
 {
   fileToDisassemble = "";
   functions.clear();

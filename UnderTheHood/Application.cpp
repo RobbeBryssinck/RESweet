@@ -11,21 +11,21 @@ Application::Application()
   s_application = this;
 }
 
-void Application::AddLayer(Layer* aLayer)
+void Application::AddWindow(Window* apWindow)
 {
-  layers.push_back(aLayer);
+  windows.push_back(apWindow);
 }
 
 void Application::Run()
 {
   while (isRunning)
   {
-    for (Layer* layer : layers)
-      layer->UpdateLogic();
+    for (Window* window : windows)
+      window->UpdateLogic();
 
     uiRunner.BeginFrame();
-    for (Layer* layer : layers)
-      layer->UpdateUI();
+    for (Window* window : windows)
+      window->UpdateUI();
     uiRunner.EndFrame();
   }
 }

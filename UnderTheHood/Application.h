@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Layers/Layer.h"
+#include "Windows/Window.h"
 
 #include <ImGuiImpl/imgui_runner.h>
 
@@ -16,7 +16,7 @@ public:
 
   [[nodiscard]] static Application& Get() { return *s_application; }
 
-  void AddLayer(Layer* aLayer);
+  void AddWindow(Window* apWindow);
 
   void Run();
   void OnEvent(const Event& acEvent);
@@ -24,7 +24,7 @@ public:
 private:
   static Application* s_application;
 
-  std::vector<Layer*> layers{};
+  std::vector<Window*> windows{};
   imgui_runner uiRunner;
 
   bool isRunning = true;

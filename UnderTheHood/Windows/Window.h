@@ -2,7 +2,7 @@
 
 struct Event;
 
-class Layer
+class Window
 {
 public:
   virtual void Setup() {};

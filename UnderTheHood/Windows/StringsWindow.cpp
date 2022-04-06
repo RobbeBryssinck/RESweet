@@ -1,4 +1,4 @@
-#include "StringsLayer.h"
+#include "StringsWindow.h"
 
 #include <Strings/Strings.h>
 #include <FileHandling.h>
@@ -6,11 +6,11 @@
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 
-void StringsLayer::Setup()
+void StringsWindow::Setup()
 {
 }
 
-void StringsLayer::UpdateLogic()
+void StringsWindow::UpdateLogic()
 {
   if (shouldCollectStrings)
   {
@@ -24,7 +24,7 @@ void StringsLayer::UpdateLogic()
   }
 }
 
-void StringsLayer::UpdateUI()
+void StringsWindow::UpdateUI()
 {
   ImGui::Begin("Strings");
 
@@ -37,6 +37,6 @@ void StringsLayer::UpdateUI()
   ImGui::End();
 }
 
-void StringsLayer::OnEvent(const Event& acEvent)
+void StringsWindow::OnEvent(const Event& acEvent)
 {
 }

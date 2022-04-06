@@ -9,8 +9,8 @@
 
 #include "Application.h"
 #include "Disassembly/Disassembly.h"
-#include "Layers/DisassemblyLayer.h"
-#include "Layers/StringsLayer.h"
+#include "Windows/DisassemblyWindow.h"
+#include "Windows/StringsWindow.h"
 
 void InitializeLogger()
 {
@@ -25,19 +25,10 @@ int main(int argc, char* argv[])
 {
   InitializeLogger();
 
-  /*
-  std::string str1 = "Hello";
-  std::string str2 = "Good morning";
-
-  Writer writer{};
-  writer.WriteImpl((void*)str1.c_str(), str1.size());
-  writer.WriteImpl((void*)str2.c_str(), str2.size());
-  */
-
-  DisassemblyLayer disassemblyLayer;
+  DisassemblyWindow disassemblyLayer;
   disassemblyLayer.Setup();
 
-  StringsLayer stringsLayer;
+  StringsWindow stringsLayer;
   stringsLayer.Setup();
 
   Application application;

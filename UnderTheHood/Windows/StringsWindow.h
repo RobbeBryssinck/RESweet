@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Layer.h"
+#include "Window.h"
 
 #include <vector>
 #include <string>
 
-class StringsLayer : public Layer
+class StringsWindow : public Window
 {
 public:
   virtual void Setup() override;

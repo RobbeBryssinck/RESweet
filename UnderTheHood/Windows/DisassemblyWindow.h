@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Layer.h"
+#include "Window.h"
 
 #include <Disassembly/Disassembly.h>
 
@@ -8,11 +8,11 @@
 #include <string>
 #include <unordered_map>
 
-class DisassemblyLayer : public Layer
+class DisassemblyWindow : public Window
 {
 public:
-  DisassemblyLayer() = default;
-  ~DisassemblyLayer();
+  DisassemblyWindow() = default;
+  ~DisassemblyWindow();
 
   virtual void Setup() override;
   virtual void UpdateLogic() override;
