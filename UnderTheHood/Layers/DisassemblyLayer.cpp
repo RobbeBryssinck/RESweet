@@ -1,11 +1,14 @@
 #include "DisassemblyLayer.h"
 
+#include "../SaveLoad/RESF.h"
+
 #include <BinLoader/BaseParser.h>
 #include <FileHandling.h>
 
 #include <imgui.h>
 #include <spdlog/spdlog.h>
 
+#include <filesystem>
 #include <queue>
 #include <set>
 
@@ -28,8 +31,22 @@ void DisassemblyLayer::UpdateLogic()
 
     if (pBinary)
       functions = Disassembly::Disassemble(pBinary);
+    else
+      fileToDisassemble = "";
 
     shouldDisassemble = false;
+  }
+
+  if (shouldSave)
+  {
+    SaveToFile();
+    shouldSave = false;
+  }
+
+  if (shouldLoad)
+  {
+    LoadFromFile(fileToLoad);
+    shouldLoad = false;
   }
 }
 
@@ -41,6 +58,17 @@ void DisassemblyLayer::UpdateUI()
   ImGui::Begin("Disassembly");
 
   ImGui::Text("Count: %d", count);
+
+  if (ImGui::Button("Save"))
+    shouldSave = true;
+
+  ImGui::SameLine();
+
+  if (ImGui::Button("Load"))
+  {
+    fileToLoad = OpenFileDialogue();
+    shouldLoad = true;
+  }
 
   if (ImGui::Button("Disassemble"))
   {
@@ -179,4 +207,81 @@ std::string DisassemblyLayer::BuildInstructionString(const cs_insn& apInstructio
   instructionString += fmt::format("{:<12}{}\n", apInstruction.mnemonic, apInstruction.op_str);
 
   return instructionString;
+}
+
+void DisassemblyLayer::SaveToFile() const
+{
+  if (fileToDisassemble == "")
+    return;
+
+  RESF resf{};
+
+  std::filesystem::path filePath(fileToDisassemble);
+  std::string filename = filePath.filename().string();
+
+  resf.header.filename = filename;
+
+  resf.functions.reserve(functions.size());
+  for (auto& [address, function] : functions)
+  {
+    auto& savedFunction = resf.functions.emplace_back();
+
+    savedFunction.address = address;
+    savedFunction.name = function.name;
+
+    savedFunction.instructions.reserve(function.instructions.size());
+    for (auto& instruction : function.instructions)
+    {
+      auto& savedInstruction = savedFunction.instructions.emplace_back();
+
+      savedInstruction.id = instruction.id;
+      savedInstruction.address = instruction.address;
+      savedInstruction.size = instruction.size;
+
+      std::copy(std::begin(instruction.bytes), std::end(instruction.bytes), std::begin(savedInstruction.bytes));
+      std::copy(std::begin(instruction.mnemonic), std::end(instruction.mnemonic), std::begin(savedInstruction.mnemonic));
+      std::copy(std::begin(instruction.op_str), std::end(instruction.op_str), std::begin(savedInstruction.operand));
+    }
+  }
+
+  Writer writer{};
+  resf.Serialize(writer);
+
+  writer.WriteToFile(filePath.parent_path().string() + "\\" + filename + ".resf");
+}
+
+void DisassemblyLayer::LoadFromFile(const std::string& acFilename)
+{
+  Reader reader{};
+  if (!reader.LoadFromFile(acFilename))
+    return;
+
+  RESF resf{};
+  resf.Deserialize(reader);
+
+  std::filesystem::path filePath(resf.header.filename);
+  fileToDisassemble = filePath.string();
+
+  functions.reserve(resf.functions.size());
+  for (auto& savedFunction : resf.functions)
+  {
+    auto& function = functions[savedFunction.address];
+
+    function.address = savedFunction.address;
+    function.name = savedFunction.name;
+
+    function.instructions.reserve(savedFunction.instructions.size());
+    for (auto& savedInstruction : savedFunction.instructions)
+    {
+      auto& instruction = function.instructions.emplace_back();
+
+      instruction.id = savedInstruction.id;
+      instruction.address = savedInstruction.address;
+      instruction.size = savedInstruction.size;
+
+      std::copy(std::begin(savedInstruction.bytes), std::end(savedInstruction.bytes), std::begin(instruction.bytes));
+      std::copy(std::begin(savedInstruction.mnemonic), std::end(savedInstruction.mnemonic), std::begin(instruction.mnemonic));
+      std::copy(std::begin(savedInstruction.operand), std::end(savedInstruction.operand), std::begin(instruction.op_str));
+    }
+  }
 }

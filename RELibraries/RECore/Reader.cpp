@@ -4,20 +4,20 @@
 #include <fstream>
 #include <spdlog/spdlog.h>
 
-bool Reader::LoadFromFile(const std::string& acFile)
+bool Reader::LoadFromFile(const std::string& acFilename)
 {
-  if (!std::filesystem::exists(acFile))
+  if (!std::filesystem::exists(acFilename))
   {
-    spdlog::error("File does not exist: {}", acFile);
+    spdlog::error("File does not exist: {}", acFilename);
     return false;
   }
 
-  size = std::filesystem::file_size(acFile);
+  size = std::filesystem::file_size(acFilename);
 
-  std::ifstream file(acFile, std::ios::binary);
+  std::ifstream file(acFilename, std::ios::binary);
   if (file.fail())
   {
-    spdlog::error("Failed to read file contents.");
+    spdlog::error("Failed to read file contents of file {}", acFilename);
     return false;
   }
 

@@ -25,10 +25,17 @@ private:
 
   void RenderDisassemblyModal(const Disassembly::Function& acFunction);
 
+  void SaveToFile() const;
+  void LoadFromFile(const std::string& acFilename);
+
   uint64_t count = 0;
 
   bool shouldDisassemble = false;
+  bool shouldSave = false;
+  bool shouldLoad = false;
+
   std::string fileToDisassemble = "";
+  std::string fileToLoad = "";
   Disassembly::Function modalFunction{};
 
   Disassembly::Functions functions{};

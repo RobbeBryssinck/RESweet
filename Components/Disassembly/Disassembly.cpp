@@ -144,7 +144,8 @@ bool DisassembleLinear(std::shared_ptr<Binary> apBinary, Functions& aFunctions)
 
     do
     {
-      function.instructions.push_back(instruction);
+      cs_insn& emplacedInstruction = function.instructions.emplace_back(instruction);
+      emplacedInstruction.detail = nullptr;
 
       i++;
       if (i >= instructionCount)
@@ -223,7 +224,8 @@ bool DisassembleRecursive(std::shared_ptr<Binary> apBinary, Functions& aFunction
 
       processedAddresses.insert(instruction->address);
 
-      function.instructions.push_back(*instruction);
+      cs_insn& emplacedInstruction = function.instructions.emplace_back(*instruction);
+      emplacedInstruction.detail = nullptr;
 
       bool isControlInstruction = false;
       for (size_t i = 0; i < instruction->detail->groups_count; i++)

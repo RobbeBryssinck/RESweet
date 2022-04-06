@@ -9,8 +9,9 @@ class Reader final : public Buffer
 public:
   Reader() = default;
 
-  bool LoadFromFile(const std::string& acFile);
+  bool LoadFromFile(const std::string& acFilename);
 
+  // This only works on simple types with no pointers
   template <class T>
   bool Read(T& apDestination, bool aPeak = false)
   {
