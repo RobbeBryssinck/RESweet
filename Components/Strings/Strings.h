@@ -8,8 +8,14 @@
 #include <vector>
 #include <ctype.h>
 
+// TODO: move to cpp?
 namespace Strings
 {
+
+bool IsValidCharacter(const char aCharacter)
+{
+  return (aCharacter > 0x1F && aCharacter < 0x7F) || aCharacter == '\n' || aCharacter == '\r';
+}
 
 std::vector<std::string> GetStringsFromData(Reader& aReader, const int acMinStringLength = 5)
 {
@@ -21,22 +27,22 @@ std::vector<std::string> GetStringsFromData(Reader& aReader, const int acMinStri
 
   while (aReader.Read(currentCharacter))
   {
-    if (isascii(currentCharacter))
+    if (IsValidCharacter(currentCharacter))
     {
-      if (currentCharacter == '\00')
-      {
-        if (startPosition != invalidPosition
-            && aReader.position - startPosition >= (acMinStringLength + 1)) // +1 to min string length to account for null byte
-        {
-          aReader.position = startPosition;
-          strings.push_back(std::move(aReader.ReadString()));
-          spdlog::debug("String at position {:X}: {}", startPosition, strings.back());
-        }
-
-        startPosition = invalidPosition;
-      }
-      else if (startPosition == invalidPosition)
+      if (startPosition == invalidPosition)
         startPosition = aReader.position - 1;
+    }
+    else if (currentCharacter == '\00')
+    {
+      if (startPosition != invalidPosition
+          && aReader.position - startPosition >= (acMinStringLength + 1)) // +1 to min string length to account for null byte
+      {
+        aReader.position = startPosition;
+        strings.push_back(std::move(aReader.ReadString()));
+        spdlog::debug("String at position {:X}: {}", startPosition, strings.back());
+      }
+
+      startPosition = invalidPosition;
     }
     else
       startPosition = invalidPosition;

@@ -19,7 +19,15 @@ void StringsWindow::Update()
     strings = Strings::GetStringsFromFile(OpenFileDialogue());
 
     for (std::string& string : strings)
-      spdlog::info(string);
+      spdlog::debug(string);
+  }
+
+  for (std::string& string : strings)
+  {
+    ImGui::PushTextWrapPos();
+    ImGui::TextUnformatted(string.c_str());
+    ImGui::PopTextWrapPos();
+    ImGui::Separator();
   }
 
   ImGui::End();
