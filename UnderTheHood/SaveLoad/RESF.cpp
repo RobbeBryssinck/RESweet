@@ -1,6 +1,6 @@
 #include "RESF.h"
 
-void RESF::Header::Serialize(Writer& aWriter)
+void RESF::Header::Serialize(Writer& aWriter) const
 {
   aWriter.Write(magic);
   aWriter.WriteString(filename);
@@ -12,7 +12,7 @@ void RESF::Header::Deserialize(Reader& aReader)
   filename = aReader.ReadString();
 }
 
-void RESF::SavedInstruction::Serialize(Writer& aWriter)
+void RESF::SavedInstruction::Serialize(Writer& aWriter) const
 {
   aWriter.Write(*this);
 }
@@ -22,7 +22,7 @@ void RESF::SavedInstruction::Deserialize(Reader& aReader)
   aReader.Read(*this);
 }
 
-void RESF::SavedFunction::Serialize(Writer& aWriter)
+void RESF::SavedFunction::Serialize(Writer& aWriter) const
 {
   aWriter.Write(address);
   aWriter.WriteString(name);
@@ -30,7 +30,7 @@ void RESF::SavedFunction::Serialize(Writer& aWriter)
   const size_t instructionCount = instructions.size();
   aWriter.Write(instructionCount);
 
-  for (SavedInstruction& instruction : instructions)
+  for (const SavedInstruction& instruction : instructions)
     instruction.Serialize(aWriter);
 }
 
@@ -49,14 +49,14 @@ void RESF::SavedFunction::Deserialize(Reader& aReader)
   }
 }
 
-void RESF::Serialize(Writer& aWriter)
+void RESF::Serialize(Writer& aWriter) const
 {
   header.Serialize(aWriter);
 
   const size_t functionCount = functions.size();
   aWriter.Write(functionCount);
 
-  for (SavedFunction& function : functions)
+  for (const SavedFunction& function : functions)
     function.Serialize(aWriter);
 }
 

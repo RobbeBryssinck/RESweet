@@ -12,7 +12,7 @@
 namespace Strings
 {
 
-bool IsValidCharacter(const char aCharacter)
+constexpr bool IsValidCharacter(const char aCharacter)
 {
   return (aCharacter > 0x1F && aCharacter < 0x7F) || aCharacter == '\n' || aCharacter == '\r';
 }

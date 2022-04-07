@@ -22,7 +22,7 @@ public:
 
 private:
 
-  bool IsDisassembled() const { return !functions.empty(); }
+  bool IsDisassembled() const noexcept { return !functions.empty(); }
 
   std::string BuildInstructionString(const cs_insn& apInstruction);
 

@@ -6,6 +6,13 @@ Buffer::Buffer(Buffer&& aBuffer) noexcept
   size = aBuffer.size;
 }
 
+Buffer& Buffer::operator=(Buffer&& aBuffer) noexcept
+{
+  pData = std::move(aBuffer.pData);
+  size = aBuffer.size;
+  return *this;
+}
+
 // don't abuse this, cause unique_ptr and all
 uint8_t* Buffer::GetDataAtPosition()
 {

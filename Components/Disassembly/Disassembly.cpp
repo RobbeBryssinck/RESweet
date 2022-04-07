@@ -117,7 +117,7 @@ bool DisassembleLinear(std::shared_ptr<Binary> apBinary, Functions& aFunctions)
   if (handle == 0)
     return false;
 
-  Section* pText = apBinary->GetTextSection();
+  const Section* pText = apBinary->GetTextSection();
   if (!pText)
   {
     spdlog::warn("Could not find text section in binary.");
@@ -170,7 +170,7 @@ bool DisassembleRecursive(std::shared_ptr<Binary> apBinary, Functions& aFunction
   if (handle == 0)
     return false;
 
-  Section* pText = apBinary->GetTextSection();
+  const Section* pText = apBinary->GetTextSection();
   if (!pText)
   {
     spdlog::warn("Could not find text section in binary.");

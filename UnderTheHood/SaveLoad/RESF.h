@@ -11,7 +11,7 @@ struct RESF
 {
   struct Header
   {
-    void Serialize(Writer& aWriter);
+    void Serialize(Writer& aWriter) const;
     void Deserialize(Reader& aReader);
 
     uint32_t magic = 'FSER';
@@ -20,7 +20,7 @@ struct RESF
 
   struct SavedInstruction
   {
-    void Serialize(Writer& aWriter);
+    void Serialize(Writer& aWriter) const;
     void Deserialize(Reader& aReader);
 
     uint32_t id{};
@@ -33,7 +33,7 @@ struct RESF
 
   struct SavedFunction
   {
-    void Serialize(Writer& aWriter);
+    void Serialize(Writer& aWriter) const;
     void Deserialize(Reader& aReader);
 
     uint64_t address{};
@@ -41,7 +41,7 @@ struct RESF
     std::vector<SavedInstruction> instructions{};
   };
 
-  void Serialize(Writer& aWriter);
+  void Serialize(Writer& aWriter) const;
   void Deserialize(Reader& aReader);
 
   Header header{};

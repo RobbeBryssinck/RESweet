@@ -4,7 +4,7 @@
 #include "../FileFormats.h"
 
 // TODO: might be cleaner to just split 32 and 64 bit up?
-class ElfParser : public BaseParser
+class ElfParser final : public BaseParser
 {
 public:
   ElfParser() = delete;

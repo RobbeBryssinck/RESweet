@@ -3,7 +3,7 @@
 #include "../BaseParser.h"
 #include "../FileFormats.h"
 
-class PeParser : public BaseParser
+class PeParser final : public BaseParser
 {
 public:
   PeParser() = delete;

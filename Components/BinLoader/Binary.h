@@ -30,7 +30,7 @@ public:
     DATA = 2,
   };
 
-  bool Contains(uint64_t aAddress) const 
+  constexpr bool Contains(uint64_t aAddress) const
   {
     return (aAddress >= virtualAddress) && (aAddress - virtualAddress < size);
   }
@@ -71,9 +71,9 @@ public:
     BITS_64 = 2,
   };
 
-  Section* GetTextSection()
+  const Section* GetTextSection() const
   {
-    for (Section& section : sections)
+    for (const Section& section : sections)
     {
       if (section.name == ".text")
         return &section;

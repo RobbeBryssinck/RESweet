@@ -7,7 +7,10 @@ class Buffer
 {
 public:
   Buffer() = default;
+  Buffer(const Buffer& aBuffer) = default;
   Buffer(Buffer&& aBuffer) noexcept;
+  Buffer& operator=(const Buffer& aBuffer) = default;
+  Buffer& operator=(Buffer&& aBuffer) noexcept;
 
   uint8_t* GetDataAtPosition();
 
