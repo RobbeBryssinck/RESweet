@@ -21,8 +21,10 @@ void Application::Run()
   while (isRunning)
   {
     uiRunner.BeginFrame();
+
     for (Window* window : windows)
       window->Update();
+
     uiRunner.EndFrame();
   }
 }

@@ -144,7 +144,7 @@ imgui_runner::imgui_runner(const std::string& acString)
   }
 
   // Show the window
-  ::ShowWindow(hwnd, SW_SHOWDEFAULT);
+  ::ShowWindow(hwnd, SW_MAXIMIZE);
   ::UpdateWindow(hwnd);
 
   // Setup Dear ImGui context
