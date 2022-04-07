@@ -25,7 +25,7 @@ void DisassemblyWindow::Setup()
 void DisassemblyWindow::Update()
 {
   static bool show = false;
-  //ImGui::ShowDemoWindow(&show);
+  ImGui::ShowDemoWindow(&show);
 
   ImGui::Begin("Disassembly");
 

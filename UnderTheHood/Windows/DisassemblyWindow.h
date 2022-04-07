@@ -13,6 +13,8 @@ class DisassemblyWindow : public Window
 public:
   DisassemblyWindow() = default;
   ~DisassemblyWindow();
+  DisassemblyWindow(const DisassemblyWindow&) = default;
+  DisassemblyWindow& operator=(const DisassemblyWindow&) = default;
 
   virtual void Setup() override;
   virtual void Update() override;
