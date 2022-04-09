@@ -2,6 +2,8 @@
 
 #include <ImGuiImpl/imgui_runner.h>
 
+#include <spdlog/spdlog.h>
+
 Application* Application::s_application = nullptr;
 
 Application::Application()

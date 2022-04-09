@@ -6,7 +6,8 @@ project "ImGuiImpl"
 
    includedirs 
    {
-      "../../Vendor/imgui"
+      "../../Vendor/imgui",
+      "../../Vendor/spdlog/include"
    }
 
    links "imgui"
