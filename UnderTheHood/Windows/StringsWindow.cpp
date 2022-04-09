@@ -1,5 +1,7 @@
 #include "StringsWindow.h"
 
+#include "../Application.h"
+
 #include <Strings/Strings.h>
 #include <FileHandling.h>
 
@@ -8,6 +10,7 @@
 
 void StringsWindow::Setup()
 {
+  Application::Get().GetDispatcher().Subscribe(EventType::kOpenFile, std::bind(&StringsWindow::OnOpenFile, this, std::placeholders::_1));
 }
 
 void StringsWindow::Update()
@@ -33,6 +36,11 @@ void StringsWindow::Update()
   ImGui::End();
 }
 
-void StringsWindow::OnEvent(const Event& acEvent)
+void StringsWindow::OnOpenFile(const Event& aEvent)
 {
+  RE_ASSERT(aEvent.GetType() == EventType::kOpenFile);
+
+  const OpenFileEvent& fileEvent = static_cast<const OpenFileEvent&>(aEvent);
+
+  strings = Strings::GetStringsFromFile(fileEvent.filename);
 }

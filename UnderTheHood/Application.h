@@ -6,8 +6,8 @@
 
 #include <vector>
 
-// TODO: event system (or observer system?)
-struct Event;
+#define RE_ASSERT(x) if (!(x)) \
+  DebugBreak();
 
 class Application
 {
@@ -15,6 +15,8 @@ public:
   Application();
 
   [[nodiscard]] static Application& Get() { return *s_application; }
+
+  [[nodiscard]] EventDispatcher& GetDispatcher() { return dispatcher; }
 
   void AddWindow(Window* apWindow);
 
@@ -25,6 +27,7 @@ private:
   static Application* s_application;
 
   std::vector<Window*> windows{};
+  EventDispatcher dispatcher{};
   imgui_runner uiRunner;
 
   bool isRunning = true;

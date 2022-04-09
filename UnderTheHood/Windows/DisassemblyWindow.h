@@ -18,7 +18,8 @@ public:
 
   virtual void Setup() override;
   virtual void Update() override;
-  virtual void OnEvent(const Event& acEvent) override;
+
+  void OnOpenFile(const Event& aEvent);
 
 private:
 

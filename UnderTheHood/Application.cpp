@@ -18,6 +18,9 @@ void Application::AddWindow(Window* apWindow)
 
 void Application::Run()
 {
+  for (Window* window : windows)
+    window->Setup();
+
   while (isRunning)
   {
     uiRunner.BeginFrame();
@@ -32,6 +35,7 @@ void Application::Run()
 void Application::OnEvent(const Event& acEvent)
 {
   //if (acEvent.Type == Event::Type::CLOSE)
+  if (0)
   {
     isRunning = false;
   }

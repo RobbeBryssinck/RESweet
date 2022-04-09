@@ -1,6 +1,7 @@
 #include "DisassemblyWindow.h"
 
 #include "../SaveLoad/RESF.h"
+#include "../Application.h"
 
 #include <BinLoader/BaseParser.h>
 #include <FileHandling.h>
@@ -180,9 +181,13 @@ void DisassemblyWindow::RenderDisassemblyModal(const Disassembly::Function& acFu
     ImGui::OpenPopup(modalFunction.name.c_str());
 }
 
-void DisassemblyWindow::OnEvent(const Event& acEvent)
+void DisassemblyWindow::OnOpenFile(const Event& aEvent)
 {
+  RE_ASSERT(aEvent.GetType() == EventType::kOpenFile);
 
+  const OpenFileEvent& fileEvent = static_cast<const OpenFileEvent&>(aEvent);
+
+  LoadFromFile(fileEvent.filename);
 }
 
 std::string DisassemblyWindow::BuildInstructionString(const cs_insn& apInstruction)
