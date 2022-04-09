@@ -5,6 +5,7 @@
 enum class EventType
 {
   kNone = 0,
+  kTest,
   kOpenFile,
 };
 
@@ -36,6 +37,18 @@ public:
   }
 
   std::string filename{};
+};
+
+class TestEvent final : public Event
+{
+public:
+  static constexpr EventType eventType = EventType::kTest;
+
+  virtual ~TestEvent() = default;
+  virtual EventType GetType() const
+  {
+    return eventType;
+  }
 };
 
 class EventDispatcher final

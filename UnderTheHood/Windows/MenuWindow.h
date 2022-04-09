@@ -7,4 +7,6 @@ class MenuWindow final : public Window
 public:
   void Setup() override;
   void Update() override;
+
+  void OnTestEvent(const Event& aEvent);
 };

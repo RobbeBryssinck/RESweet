@@ -22,7 +22,7 @@ std::vector<std::string> GetStringsFromData(Reader& aReader, const int acMinStri
   std::vector<std::string> strings{};
 
   char currentCharacter = '\00';
-  constexpr size_t invalidPosition = (std::numeric_limits<size_t>::max)();
+  constexpr size_t invalidPosition = std::numeric_limits<size_t>::max();
   size_t startPosition = invalidPosition;
 
   while (aReader.Read(currentCharacter))

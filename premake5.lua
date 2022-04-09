@@ -6,6 +6,8 @@ workspace "RESweet"
 
    cppdialect "C++20"
 
+   defines { "NOMINMAX" }
+
    filter { "configurations:Debug" }
       defines { "DEBUG" }
       symbols "On"
