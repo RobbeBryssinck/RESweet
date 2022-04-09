@@ -20,7 +20,7 @@ DisassemblyWindow::~DisassemblyWindow()
 
 void DisassemblyWindow::Setup()
 {
-  count = 0;
+  Application::Get().GetDispatcher().Subscribe(EventType::kOpenFile, std::bind(&DisassemblyWindow::OnOpenFile, this, std::placeholders::_1));
 }
 
 void DisassemblyWindow::Update()
@@ -187,7 +187,14 @@ void DisassemblyWindow::OnOpenFile(const Event& aEvent)
 
   const OpenFileEvent& fileEvent = static_cast<const OpenFileEvent&>(aEvent);
 
-  LoadFromFile(fileEvent.filename);
+  fileToDisassemble = fileEvent.filename;
+
+  std::shared_ptr<Binary> pBinary = Parsing::ParseFile(fileToDisassemble);
+
+  if (pBinary)
+    functions = Disassembly::Disassemble(pBinary);
+  else
+    fileToDisassemble = "";
 }
 
 std::string DisassemblyWindow::BuildInstructionString(const cs_insn& apInstruction)
