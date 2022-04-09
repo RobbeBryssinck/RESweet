@@ -34,21 +34,6 @@ void DisassemblyWindow::Update()
 
   ImGui::Text("Count: %d", count);
 
-  if (ImGui::Button("New"))
-  {
-    const std::string dialogueTitle = "Open file to disassemble";
-    fileToDisassemble = OpenFileDialogue(&dialogueTitle);
-
-    std::shared_ptr<Binary> pBinary = Parsing::ParseFile(fileToDisassemble);
-
-    if (pBinary)
-      functions = Disassembly::Disassemble(pBinary);
-    else
-      fileToDisassemble = "";
-  }
-
-  ImGui::SameLine();
-
   if (ImGui::Button("Load"))
   {
     FileFilters filters{ {"RESweet save file", "*.resf"} };

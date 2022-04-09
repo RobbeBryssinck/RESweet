@@ -17,14 +17,6 @@ void StringsWindow::Update()
 {
   ImGui::Begin("Strings");
 
-  if (ImGui::Button("Get strings"))
-  {
-    strings = Strings::GetStringsFromFile(OpenFileDialogue());
-
-    for (std::string& string : strings)
-      spdlog::debug(string);
-  }
-
   for (std::string& string : strings)
   {
     ImGui::PushTextWrapPos();
