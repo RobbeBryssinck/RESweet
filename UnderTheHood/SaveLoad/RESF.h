@@ -6,6 +6,29 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <filesystem>
+
+class SaveManager
+{
+public:
+  bool IsReadyToSave() const
+  {
+    return isDisassemblyReady &&
+           isStringsReady;
+  }
+
+  bool SetFilePath(const std::filesystem::path& aPath)
+  {
+    file = aPath;
+  }
+
+  bool Save();
+
+  RESF resf{};
+  std::filesystem::path file{};
+  bool isDisassemblyReady = false;
+  bool isStringsReady = false;
+};
 
 struct RESF
 {
@@ -46,4 +69,5 @@ struct RESF
 
   Header header{};
   std::vector<SavedFunction> functions{};
+  std::vector<std::string> strings{};
 };

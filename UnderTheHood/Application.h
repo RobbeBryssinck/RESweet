@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Windows/Window.h"
+#include "SaveLoad/RESF.h"
 
 #include <ImGuiImpl/imgui_runner.h>
 
@@ -17,6 +18,7 @@ public:
   [[nodiscard]] static Application& Get() { return *s_application; }
 
   [[nodiscard]] EventDispatcher& GetDispatcher() { return dispatcher; }
+  [[nodiscard]] SaveManager& GetSaveManager() { return saveManager; }
 
   void AddWindow(Window* apWindow);
 
@@ -28,4 +30,6 @@ private:
   std::vector<Window*> windows{};
   EventDispatcher dispatcher{};
   imgui_runner uiRunner;
+
+  SaveManager saveManager{};
 };

@@ -1,6 +1,5 @@
 #include "DisassemblyWindow.h"
 
-#include "../SaveLoad/RESF.h"
 #include "../Application.h"
 
 #include <BinLoader/BaseParser.h>
@@ -205,17 +204,18 @@ void DisassemblyWindow::SaveToFile() const
   if (fileToDisassemble == "")
     return;
 
-  RESF resf{};
+  SaveManager& saveManager = Application::Get().GetSaveManager();
+  saveManager.SetFilePath(std::filesystem::path(fileToDisassemble));
 
   std::filesystem::path filePath(fileToDisassemble);
   std::string filename = filePath.filename().string();
 
-  resf.header.filename = filename;
+  saveManager.resf.header.filename = filename;
 
-  resf.functions.reserve(functions.size());
+  saveManager.resf.functions.reserve(functions.size());
   for (auto& [address, function] : functions)
   {
-    auto& savedFunction = resf.functions.emplace_back();
+    auto& savedFunction = saveManager.resf.functions.emplace_back();
 
     savedFunction.address = address;
     savedFunction.name = function.name;
@@ -234,11 +234,6 @@ void DisassemblyWindow::SaveToFile() const
       std::copy(std::begin(instruction.op_str), std::end(instruction.op_str), std::begin(savedInstruction.operand));
     }
   }
-
-  Writer writer{};
-  resf.Serialize(writer);
-
-  writer.WriteToFile(filePath.parent_path().string() + "\\" + filename + ".resf");
 }
 
 void DisassemblyWindow::LoadFromFile(const std::string& acFilename)

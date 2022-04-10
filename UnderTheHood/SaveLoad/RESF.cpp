@@ -1,5 +1,23 @@
 #include "RESF.h"
 
+#include "../Application.h"
+
+bool SaveManager::Save()
+{
+  if (!IsReadyToSave())
+    return false;
+
+  Writer writer{};
+  resf.Serialize(writer);
+
+  writer.WriteToFile(file.parent_path().string() + "\\" + file.filename().string() + ".resf");
+
+  resf = RESF();
+  isDisassemblyReady = isStringsReady = false;
+
+  return true;
+}
+
 void RESF::Header::Serialize(Writer& aWriter) const
 {
   aWriter.Write(magic);
@@ -58,6 +76,11 @@ void RESF::Serialize(Writer& aWriter) const
 
   for (const SavedFunction& function : functions)
     function.Serialize(aWriter);
+
+  const size_t stringCount = strings.size();
+
+  for (const std::string& string : strings)
+    aWriter.WriteString(string);
 }
 
 void RESF::Deserialize(Reader& aReader)
@@ -72,4 +95,10 @@ void RESF::Deserialize(Reader& aReader)
     SavedFunction& function = functions.emplace_back();
     function.Deserialize(aReader);
   }
+
+  size_t stringCount = 0;
+  aReader.Read(stringCount);
+
+  for (size_t i = 0; i < stringCount; i++)
+    strings.push_back(std::move(aReader.ReadString()));
 }

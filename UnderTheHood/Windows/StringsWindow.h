@@ -16,5 +16,7 @@ public:
   void OnOpenFile(const Event& aEvent);
 
 private:
+  void SaveStrings() const;
+
   std::vector<std::string> strings{};
 };

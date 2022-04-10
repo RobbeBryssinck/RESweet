@@ -36,3 +36,12 @@ void StringsWindow::OnOpenFile(const Event& aEvent)
 
   strings = Strings::GetStringsFromFile(fileEvent.filename);
 }
+
+void StringsWindow::SaveStrings() const
+{
+  SaveManager& saveManager = Application::Get().GetSaveManager();
+
+  saveManager.resf.strings = strings;
+
+  saveManager.isStringsReady = true;
+}
