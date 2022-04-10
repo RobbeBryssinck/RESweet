@@ -27,42 +27,35 @@ void DisassemblyWindow::Setup()
 
 void DisassemblyWindow::Update()
 {
-  static bool show = false;
-  ImGui::ShowDemoWindow(&show);
+  if (!IsLoaded())
+    return;
 
   ImGui::Begin("Disassembly");
 
-  count += 1;
+  ImGui::Text("Function count: %d", functions.size());
 
-  ImGui::Text("Count: %d", count);
-
-  if (IsDisassembled())
+  static uint64_t address = 0;
+  ImGui::InputScalar("Address", ImGuiDataType_U64, &address, 0, 0, "%" PRIx64, ImGuiInputTextFlags_CharsHexadecimal);
+  if (ImGui::Button("Get function") && address)
   {
-    ImGui::Text("Function count: %d", functions.size());
-
-    static uint64_t address = 0;
-    ImGui::InputScalar("Address", ImGuiDataType_U64, &address, 0, 0, "%" PRIx64, ImGuiInputTextFlags_CharsHexadecimal);
-    if (ImGui::Button("Get function") && address)
+    auto functionIt = functions.find(address);
+    if (functionIt == functions.end())
+      spdlog::error("Function with address {:X} not found.", address);
+    else
     {
-      auto functionIt = functions.find(address);
-      if (functionIt == functions.end())
-        spdlog::error("Function with address {:X} not found.", address);
-      else
-      {
-        ImGui::OpenPopup(functionIt->second.name.c_str());
-        modalFunction = functionIt->second;
-      }
+      ImGui::OpenPopup(functionIt->second.name.c_str());
+      modalFunction = functionIt->second;
     }
+  }
 
-    ImGui::Separator();
+  ImGui::Separator();
 
-    for (const auto& function : functions)
+  for (const auto& function : functions)
+  {
+    if (ImGui::Button(function.second.name.c_str()))
     {
-      if (ImGui::Button(function.second.name.c_str()))
-      {
-        ImGui::OpenPopup(function.second.name.c_str());
-        modalFunction = function.second;
-      }
+      ImGui::OpenPopup(function.second.name.c_str());
+      modalFunction = function.second;
     }
   }
 

@@ -19,6 +19,8 @@ public:
   void OnClose(const Event& aEvent);
 
 private:
+  bool IsLoaded() const { return !strings.empty(); }
+
   void Save() const;
   void Load();
   void Destroy();

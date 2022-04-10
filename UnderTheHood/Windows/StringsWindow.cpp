@@ -18,6 +18,9 @@ void StringsWindow::Setup()
 
 void StringsWindow::Update()
 {
+  if (!IsLoaded())
+    return;
+
   ImGui::Begin("Strings");
 
   for (std::string& string : strings)

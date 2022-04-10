@@ -14,6 +14,9 @@ void MenuWindow::Setup()
 
 void MenuWindow::Update()
 {
+  static bool show = false;
+  //ImGui::ShowDemoWindow(&show);
+
   ImGui::Begin("Menu");
 
   if (ImGui::Button("Open new file"))
