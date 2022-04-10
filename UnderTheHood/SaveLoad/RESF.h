@@ -8,28 +8,6 @@
 #include <vector>
 #include <filesystem>
 
-class SaveManager
-{
-public:
-  bool IsReadyToSave() const
-  {
-    return isDisassemblyReady &&
-           isStringsReady;
-  }
-
-  bool SetFilePath(const std::filesystem::path& aPath)
-  {
-    file = aPath;
-  }
-
-  bool Save();
-
-  RESF resf{};
-  std::filesystem::path file{};
-  bool isDisassemblyReady = false;
-  bool isStringsReady = false;
-};
-
 struct RESF
 {
   struct Header
@@ -67,7 +45,30 @@ struct RESF
   void Serialize(Writer& aWriter) const;
   void Deserialize(Reader& aReader);
 
+  // TODO: handle Header in MenuWindow
   Header header{};
   std::vector<SavedFunction> functions{};
   std::vector<std::string> strings{};
+};
+
+class SaveManager
+{
+public:
+  bool IsReadyToSave() const
+  {
+    return isDisassemblyReady &&
+           isStringsReady;
+  }
+
+  void SetFilePath(const std::filesystem::path& aFile)
+  {
+    file = aFile;
+  }
+
+  bool Save();
+
+  RESF resf{};
+  std::filesystem::path file{};
+  bool isDisassemblyReady = false;
+  bool isStringsReady = false;
 };

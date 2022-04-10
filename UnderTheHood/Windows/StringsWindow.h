@@ -14,9 +14,10 @@ public:
   virtual void Update() override;
 
   void OnOpenFile(const Event& aEvent);
+  void OnSave(const Event& aEvent);
 
 private:
-  void SaveStrings() const;
+  void Save() const;
 
   std::vector<std::string> strings{};
 };

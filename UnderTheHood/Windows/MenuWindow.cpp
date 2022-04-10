@@ -30,6 +30,15 @@ void MenuWindow::Update()
 
   ImGui::Separator();
 
+  if (ImGui::Button("Save"))
+  {
+    Application::Get().GetDispatcher().Dispatch(SaveEvent());
+
+    SaveManager& saveManager = Application::Get().GetSaveManager();
+    bool saveResult = saveManager.Save();
+    spdlog::info("Save succeeded? {}", saveResult);
+  }
+
   if (ImGui::Button("Dispatch test event"))
     Application::Get().GetDispatcher().Dispatch(TestEvent());
 

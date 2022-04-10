@@ -21,6 +21,7 @@ void DisassemblyWindow::Setup()
 {
   Application::Get().GetDispatcher().Subscribe(Event::Type::kOpenFile, std::bind(&DisassemblyWindow::OnOpenFile, this, std::placeholders::_1));
   Application::Get().GetDispatcher().Subscribe(Event::Type::kLoad, std::bind(&DisassemblyWindow::OnLoad, this, std::placeholders::_1));
+  Application::Get().GetDispatcher().Subscribe(Event::Type::kSave, std::bind(&DisassemblyWindow::OnSave, this, std::placeholders::_1));
 }
 
 void DisassemblyWindow::Update()
@@ -182,6 +183,13 @@ void DisassemblyWindow::OnLoad(const Event& aEvent)
   LoadFromFile(loadEvent.filename);
 }
 
+void DisassemblyWindow::OnSave(const Event& aEvent)
+{
+  RE_ASSERT(aEvent.GetType() == Event::Type::kSave);
+
+  SaveToFile();
+}
+
 std::string DisassemblyWindow::BuildInstructionString(const cs_insn& apInstruction)
 {
   std::string instructionString = fmt::format("{:#018x}: ", apInstruction.address);
@@ -234,6 +242,8 @@ void DisassemblyWindow::SaveToFile() const
       std::copy(std::begin(instruction.op_str), std::end(instruction.op_str), std::begin(savedInstruction.operand));
     }
   }
+
+  saveManager.isDisassemblyReady = true;
 }
 
 void DisassemblyWindow::LoadFromFile(const std::string& acFilename)
