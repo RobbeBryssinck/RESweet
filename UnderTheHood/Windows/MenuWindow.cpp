@@ -25,7 +25,17 @@ void MenuWindow::Update()
   {
     FileFilters filters{ {"RESweet save file", "*.resf"} };
     const std::string dialogueTitle = "Open RESweet save file";
-    Application::Get().GetDispatcher().Dispatch(LoadEvent(OpenFileDialogue(&dialogueTitle, &filters)));
+    const std::string filename = OpenFileDialogue(&dialogueTitle, &filters);
+
+    SaveManager& saveManager = Application::Get().GetSaveManager();
+
+    Reader reader{};
+    if (!reader.LoadFromFile(filename))
+      spdlog::error("Failed to load buffer from file.");
+
+    saveManager.resf.Deserialize(reader);
+
+    Application::Get().GetDispatcher().Dispatch(LoadEvent());
   }
 
   ImGui::Separator();

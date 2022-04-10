@@ -78,6 +78,7 @@ void RESF::Serialize(Writer& aWriter) const
     function.Serialize(aWriter);
 
   const size_t stringCount = strings.size();
+  aWriter.Write(stringCount);
 
   for (const std::string& string : strings)
     aWriter.WriteString(string);

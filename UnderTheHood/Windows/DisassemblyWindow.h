@@ -31,8 +31,8 @@ private:
 
   void RenderDisassemblyModal(const Disassembly::Function& acFunction);
 
-  void SaveToFile() const;
-  void LoadFromFile(const std::string& acFilename);
+  void Save() const;
+  void Load();
   void Destroy();
 
   uint64_t count = 0;

@@ -38,7 +38,7 @@ void DisassemblyWindow::Update()
   if (IsDisassembled())
   {
     if (ImGui::Button("Save"))
-      SaveToFile();
+      Save();
 
     ImGui::SameLine();
 
@@ -178,16 +178,14 @@ void DisassemblyWindow::OnLoad(const Event& aEvent)
 {
   RE_ASSERT(aEvent.GetType() == Event::Type::kLoad);
 
-  const LoadEvent& loadEvent = static_cast<const LoadEvent&>(aEvent);
-
-  LoadFromFile(loadEvent.filename);
+  Load();
 }
 
 void DisassemblyWindow::OnSave(const Event& aEvent)
 {
   RE_ASSERT(aEvent.GetType() == Event::Type::kSave);
 
-  SaveToFile();
+  Save();
 }
 
 std::string DisassemblyWindow::BuildInstructionString(const cs_insn& apInstruction)
@@ -207,7 +205,7 @@ std::string DisassemblyWindow::BuildInstructionString(const cs_insn& apInstructi
   return instructionString;
 }
 
-void DisassemblyWindow::SaveToFile() const
+void DisassemblyWindow::Save() const
 {
   if (fileToDisassemble == "")
     return;
@@ -246,22 +244,17 @@ void DisassemblyWindow::SaveToFile() const
   saveManager.isDisassemblyReady = true;
 }
 
-void DisassemblyWindow::LoadFromFile(const std::string& acFilename)
+void DisassemblyWindow::Load()
 {
   Destroy();
 
-  Reader reader{};
-  if (!reader.LoadFromFile(acFilename))
-    return;
+  SaveManager& saveManager = Application::Get().GetSaveManager();
 
-  RESF resf{};
-  resf.Deserialize(reader);
-
-  std::filesystem::path filePath(resf.header.filename);
+  std::filesystem::path filePath(saveManager.resf.header.filename);
   fileToDisassemble = filePath.string();
 
-  functions.reserve(resf.functions.size());
-  for (auto& savedFunction : resf.functions)
+  functions.reserve(saveManager.resf.functions.size());
+  for (auto& savedFunction : saveManager.resf.functions)
   {
     auto& function = functions[savedFunction.address];
 

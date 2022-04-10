@@ -11,7 +11,7 @@
 void StringsWindow::Setup()
 {
   Application::Get().GetDispatcher().Subscribe(Event::Type::kOpenFile, std::bind(&StringsWindow::OnOpenFile, this, std::placeholders::_1));
-  // TODO: load event
+  Application::Get().GetDispatcher().Subscribe(Event::Type::kLoad, std::bind(&StringsWindow::OnLoad, this, std::placeholders::_1));
   Application::Get().GetDispatcher().Subscribe(Event::Type::kSave, std::bind(&StringsWindow::OnSave, this, std::placeholders::_1));
 }
 
@@ -39,6 +39,13 @@ void StringsWindow::OnOpenFile(const Event& aEvent)
   strings = Strings::GetStringsFromFile(fileEvent.filename);
 }
 
+void StringsWindow::OnLoad(const Event& aEvent)
+{
+  RE_ASSERT(aEvent.GetType() == Event::Type::kLoad);
+
+  Load();
+}
+
 void StringsWindow::OnSave(const Event& aEvent)
 {
   RE_ASSERT(aEvent.GetType() == Event::Type::kSave);
@@ -53,4 +60,11 @@ void StringsWindow::Save() const
   saveManager.resf.strings = strings;
 
   saveManager.isStringsReady = true;
+}
+
+void StringsWindow::Load()
+{
+  SaveManager& saveManager = Application::Get().GetSaveManager();
+
+  strings = saveManager.resf.strings;
 }

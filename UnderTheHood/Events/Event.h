@@ -70,17 +70,11 @@ class LoadEvent final : public Event
 public:
   static constexpr Type eventType = Type::kLoad;
 
-  LoadEvent(std::string&& aFilename)
-    : filename(std::move(aFilename))
-  {}
-
   virtual ~LoadEvent() = default;
   virtual Type GetType() const
   {
     return eventType;
   }
-
-  std::string filename{};
 };
 
 class EventDispatcher final
