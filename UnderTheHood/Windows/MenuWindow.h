@@ -9,4 +9,7 @@ public:
   void Update() override;
 
   void OnTestEvent(const Event& aEvent);
+
+private:
+  std::string openedFile{};
 };

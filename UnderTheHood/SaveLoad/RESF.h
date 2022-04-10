@@ -45,7 +45,6 @@ struct RESF
   void Serialize(Writer& aWriter) const;
   void Deserialize(Reader& aReader);
 
-  // TODO: handle Header in MenuWindow
   Header header{};
   std::vector<SavedFunction> functions{};
   std::vector<std::string> strings{};

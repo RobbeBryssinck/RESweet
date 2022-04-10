@@ -36,8 +36,6 @@ private:
   void Load();
   void Destroy();
 
-  std::string fileToDisassemble = "";
-
   Disassembly::Function modalFunction{};
   Disassembly::Functions functions{};
 };

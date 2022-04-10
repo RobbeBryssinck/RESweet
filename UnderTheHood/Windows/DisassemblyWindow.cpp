@@ -146,14 +146,10 @@ void DisassemblyWindow::OnOpenFile(const Event& aEvent)
 
   const OpenFileEvent& fileEvent = static_cast<const OpenFileEvent&>(aEvent);
 
-  fileToDisassemble = fileEvent.filename;
-
-  std::shared_ptr<Binary> pBinary = Parsing::ParseFile(fileToDisassemble);
+  std::shared_ptr<Binary> pBinary = Parsing::ParseFile(fileEvent.filename);
 
   if (pBinary)
     functions = Disassembly::Disassemble(pBinary);
-  else
-    fileToDisassemble = "";
 }
 
 void DisassemblyWindow::OnLoad(const Event& aEvent)
@@ -196,16 +192,7 @@ std::string DisassemblyWindow::BuildInstructionString(const cs_insn& apInstructi
 
 void DisassemblyWindow::Save() const
 {
-  if (fileToDisassemble == "")
-    return;
-
   SaveManager& saveManager = Application::Get().GetSaveManager();
-  saveManager.SetFilePath(std::filesystem::path(fileToDisassemble));
-
-  std::filesystem::path filePath(fileToDisassemble);
-  std::string filename = filePath.filename().string();
-
-  saveManager.resf.header.filename = filename;
 
   saveManager.resf.functions.reserve(functions.size());
   for (auto& [address, function] : functions)
@@ -239,9 +226,6 @@ void DisassemblyWindow::Load()
 
   SaveManager& saveManager = Application::Get().GetSaveManager();
 
-  std::filesystem::path filePath(saveManager.resf.header.filename);
-  fileToDisassemble = filePath.string();
-
   functions.reserve(saveManager.resf.functions.size());
   for (auto& savedFunction : saveManager.resf.functions)
   {
@@ -268,7 +252,6 @@ void DisassemblyWindow::Load()
 
 void DisassemblyWindow::Destroy()
 {
-  fileToDisassemble = "";
   functions.clear();
   modalFunction = Disassembly::Function{};
 }

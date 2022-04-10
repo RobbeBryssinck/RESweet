@@ -30,8 +30,8 @@ public:
   static constexpr Type eventType = Type::kOpenFile;
 
   OpenFileEvent() = default;
-  OpenFileEvent(std::string&& aFilename)
-    : filename(std::move(aFilename))
+  OpenFileEvent(const std::string& aFilename)
+    : filename(aFilename)
   {}
 
   virtual ~OpenFileEvent() = default;

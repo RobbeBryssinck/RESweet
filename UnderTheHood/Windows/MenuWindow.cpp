@@ -20,7 +20,10 @@ void MenuWindow::Update()
   ImGui::Begin("Menu");
 
   if (ImGui::Button("Open new file"))
-    Application::Get().GetDispatcher().Dispatch(OpenFileEvent(OpenFileDialogue()));
+  {
+    openedFile = OpenFileDialogue();
+    Application::Get().GetDispatcher().Dispatch(OpenFileEvent(openedFile));
+  }
 
   ImGui::Separator();
 
@@ -38,6 +41,8 @@ void MenuWindow::Update()
 
     saveManager.resf.Deserialize(reader);
 
+    openedFile = saveManager.resf.header.filename;
+
     Application::Get().GetDispatcher().Dispatch(LoadEvent());
   }
 
@@ -48,6 +53,10 @@ void MenuWindow::Update()
     Application::Get().GetDispatcher().Dispatch(SaveEvent());
 
     SaveManager& saveManager = Application::Get().GetSaveManager();
+
+    saveManager.resf.header.filename = openedFile;
+    saveManager.SetFilePath(openedFile);
+
     bool saveResult = saveManager.Save();
     spdlog::info("Save succeeded? {}", saveResult);
   }
@@ -55,7 +64,10 @@ void MenuWindow::Update()
   ImGui::Separator();
 
   if (ImGui::Button("Close session"))
+  {
+    openedFile = "";
     Application::Get().GetDispatcher().Dispatch(CloseEvent());
+  }
 
   ImGui::SameLine();
 
