@@ -22,7 +22,7 @@ void MenuWindow::Update()
   if (ImGui::Button("Open new file"))
     Application::Get().GetDispatcher().Dispatch(OpenFileEvent(OpenFileDialogue()));
 
-  ImGui::SameLine();
+  ImGui::Separator();
 
   if (ImGui::Button("Load"))
   {
@@ -41,7 +41,7 @@ void MenuWindow::Update()
     Application::Get().GetDispatcher().Dispatch(LoadEvent());
   }
 
-  ImGui::Separator();
+  ImGui::SameLine();
 
   if (ImGui::Button("Save"))
   {
@@ -52,12 +52,12 @@ void MenuWindow::Update()
     spdlog::info("Save succeeded? {}", saveResult);
   }
 
-  ImGui::SameLine();
+  ImGui::Separator();
 
   if (ImGui::Button("Close session"))
     Application::Get().GetDispatcher().Dispatch(CloseEvent());
 
-  ImGui::Separator();
+  ImGui::SameLine();
 
   if (ImGui::Button("Exit"))
     Application::Get().GetDispatcher().Dispatch(ExitEvent());
