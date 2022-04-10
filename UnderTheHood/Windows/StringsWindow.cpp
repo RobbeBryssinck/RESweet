@@ -26,8 +26,22 @@ void StringsWindow::Update()
   for (std::string& string : strings)
   {
     ImGui::PushTextWrapPos();
+
     ImGui::TextUnformatted(string.c_str());
+    if (ImGui::BeginPopupContextItem(string.c_str()))
+    {
+      if (ImGui::Selectable("Copy string"))
+      {
+        ImGui::LogToClipboard();
+        ImGui::LogText(string.c_str());
+        ImGui::LogFinish();
+      }
+
+      ImGui::EndPopup();
+    }
+
     ImGui::PopTextWrapPos();
+
     ImGui::Separator();
   }
 
