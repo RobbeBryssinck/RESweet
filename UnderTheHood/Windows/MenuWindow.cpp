@@ -16,12 +16,12 @@ void MenuWindow::Update()
 {
   ImGui::Begin("Menu");
 
-  if (ImGui::Button("Open file"))
+  if (ImGui::Button("Open new file"))
     Application::Get().GetDispatcher().Dispatch(OpenFileEvent(OpenFileDialogue()));
 
   ImGui::SameLine();
 
-  if (ImGui::Button("Load file"))
+  if (ImGui::Button("Load"))
   {
     FileFilters filters{ {"RESweet save file", "*.resf"} };
     const std::string dialogueTitle = "Open RESweet save file";
@@ -48,6 +48,13 @@ void MenuWindow::Update()
     bool saveResult = saveManager.Save();
     spdlog::info("Save succeeded? {}", saveResult);
   }
+
+  ImGui::SameLine();
+
+  if (ImGui::Button("Close session"))
+    Application::Get().GetDispatcher().Dispatch(CloseEvent());
+
+  ImGui::Separator();
 
   if (ImGui::Button("Dispatch test event"))
     Application::Get().GetDispatcher().Dispatch(TestEvent());

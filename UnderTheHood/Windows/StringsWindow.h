@@ -16,10 +16,12 @@ public:
   void OnOpenFile(const Event& aEvent);
   void OnSave(const Event& aEvent);
   void OnLoad(const Event& aEvent);
+  void OnClose(const Event& aEvent);
 
 private:
   void Save() const;
   void Load();
+  void Destroy();
 
   std::vector<std::string> strings{};
 };

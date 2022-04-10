@@ -12,6 +12,7 @@ public:
     kOpenFile,
     kSave,
     kLoad,
+    kClose,
   };
 
   Event() = default;
@@ -71,6 +72,18 @@ public:
   static constexpr Type eventType = Type::kLoad;
 
   virtual ~LoadEvent() = default;
+  virtual Type GetType() const
+  {
+    return eventType;
+  }
+};
+
+class CloseEvent final : public Event
+{
+public:
+  static constexpr Type eventType = Type::kClose;
+
+  virtual ~CloseEvent() = default;
   virtual Type GetType() const
   {
     return eventType;

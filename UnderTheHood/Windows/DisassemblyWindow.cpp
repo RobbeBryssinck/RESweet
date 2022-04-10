@@ -22,6 +22,7 @@ void DisassemblyWindow::Setup()
   Application::Get().GetDispatcher().Subscribe(Event::Type::kOpenFile, std::bind(&DisassemblyWindow::OnOpenFile, this, std::placeholders::_1));
   Application::Get().GetDispatcher().Subscribe(Event::Type::kLoad, std::bind(&DisassemblyWindow::OnLoad, this, std::placeholders::_1));
   Application::Get().GetDispatcher().Subscribe(Event::Type::kSave, std::bind(&DisassemblyWindow::OnSave, this, std::placeholders::_1));
+  Application::Get().GetDispatcher().Subscribe(Event::Type::kClose, std::bind(&DisassemblyWindow::OnClose, this, std::placeholders::_1));
 }
 
 void DisassemblyWindow::Update()
@@ -37,42 +38,30 @@ void DisassemblyWindow::Update()
 
   if (IsDisassembled())
   {
-    if (ImGui::Button("Save"))
-      Save();
+    ImGui::Text("Function count: %d", functions.size());
 
-    ImGui::SameLine();
-
-    if (ImGui::Button("Close"))
-      Destroy();
-
-    // Check again in case the "Close" button was clicked
-    if (IsDisassembled())
+    static uint64_t address = 0;
+    ImGui::InputScalar("Address", ImGuiDataType_U64, &address, 0, 0, "%" PRIx64, ImGuiInputTextFlags_CharsHexadecimal);
+    if (ImGui::Button("Get function") && address)
     {
-      ImGui::Text("Function count: %d", functions.size());
-
-      static uint64_t address = 0;
-      ImGui::InputScalar("Address", ImGuiDataType_U64, &address, 0, 0, "%" PRIx64, ImGuiInputTextFlags_CharsHexadecimal);
-      if (ImGui::Button("Get function") && address)
+      auto functionIt = functions.find(address);
+      if (functionIt == functions.end())
+        spdlog::error("Function with address {:X} not found.", address);
+      else
       {
-        auto functionIt = functions.find(address);
-        if (functionIt == functions.end())
-          spdlog::error("Function with address {:X} not found.", address);
-        else
-        {
-          ImGui::OpenPopup(functionIt->second.name.c_str());
-          modalFunction = functionIt->second;
-        }
+        ImGui::OpenPopup(functionIt->second.name.c_str());
+        modalFunction = functionIt->second;
       }
+    }
 
-      ImGui::Separator();
+    ImGui::Separator();
 
-      for (const auto& function : functions)
+    for (const auto& function : functions)
+    {
+      if (ImGui::Button(function.second.name.c_str()))
       {
-        if (ImGui::Button(function.second.name.c_str()))
-        {
-          ImGui::OpenPopup(function.second.name.c_str());
-          modalFunction = function.second;
-        }
+        ImGui::OpenPopup(function.second.name.c_str());
+        modalFunction = function.second;
       }
     }
   }
@@ -186,6 +175,13 @@ void DisassemblyWindow::OnSave(const Event& aEvent)
   RE_ASSERT(aEvent.GetType() == Event::Type::kSave);
 
   Save();
+}
+
+void DisassemblyWindow::OnClose(const Event& aEvent)
+{
+  RE_ASSERT(aEvent.GetType() == Event::Type::kClose);
+
+  Destroy();
 }
 
 std::string DisassemblyWindow::BuildInstructionString(const cs_insn& apInstruction)

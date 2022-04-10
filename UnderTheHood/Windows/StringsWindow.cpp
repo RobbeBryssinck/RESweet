@@ -13,6 +13,7 @@ void StringsWindow::Setup()
   Application::Get().GetDispatcher().Subscribe(Event::Type::kOpenFile, std::bind(&StringsWindow::OnOpenFile, this, std::placeholders::_1));
   Application::Get().GetDispatcher().Subscribe(Event::Type::kLoad, std::bind(&StringsWindow::OnLoad, this, std::placeholders::_1));
   Application::Get().GetDispatcher().Subscribe(Event::Type::kSave, std::bind(&StringsWindow::OnSave, this, std::placeholders::_1));
+  Application::Get().GetDispatcher().Subscribe(Event::Type::kClose, std::bind(&StringsWindow::OnClose, this, std::placeholders::_1));
 }
 
 void StringsWindow::Update()
@@ -53,6 +54,13 @@ void StringsWindow::OnSave(const Event& aEvent)
   Save();
 }
 
+void StringsWindow::OnClose(const Event& aEvent)
+{
+  RE_ASSERT(aEvent.GetType() == Event::Type::kClose);
+
+  Destroy();
+}
+
 void StringsWindow::Save() const
 {
   SaveManager& saveManager = Application::Get().GetSaveManager();
@@ -67,4 +75,9 @@ void StringsWindow::Load()
   SaveManager& saveManager = Application::Get().GetSaveManager();
 
   strings = saveManager.resf.strings;
+}
+
+void StringsWindow::Destroy()
+{
+  strings.clear();
 }
