@@ -20,6 +20,7 @@ public:
   virtual void Update() override;
 
   void OnOpenFile(const Event& aEvent);
+  void OnLoad(const Event& aEvent);
 
 private:
 

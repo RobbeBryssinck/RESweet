@@ -9,7 +9,7 @@
 
 void MenuWindow::Setup()
 {
-  Application::Get().GetDispatcher().Subscribe(EventType::kTest, std::bind(&MenuWindow::OnTestEvent, this, std::placeholders::_1));
+  Application::Get().GetDispatcher().Subscribe(Event::Type::kTest, std::bind(&MenuWindow::OnTestEvent, this, std::placeholders::_1));
 }
 
 void MenuWindow::Update()
@@ -19,6 +19,17 @@ void MenuWindow::Update()
   if (ImGui::Button("Open file"))
     Application::Get().GetDispatcher().Dispatch(OpenFileEvent(OpenFileDialogue()));
 
+  ImGui::SameLine();
+
+  if (ImGui::Button("Load file"))
+  {
+    FileFilters filters{ {"RESweet save file", "*.resf"} };
+    const std::string dialogueTitle = "Open RESweet save file";
+    Application::Get().GetDispatcher().Dispatch(LoadEvent(OpenFileDialogue(&dialogueTitle, &filters)));
+  }
+
+  ImGui::Separator();
+
   if (ImGui::Button("Dispatch test event"))
     Application::Get().GetDispatcher().Dispatch(TestEvent());
 
@@ -27,7 +38,7 @@ void MenuWindow::Update()
 
 void MenuWindow::OnTestEvent(const Event& aEvent)
 {
-  RE_ASSERT(aEvent.GetType() == EventType::kTest);
+  RE_ASSERT(aEvent.GetType() == Event::Type::kTest);
 
   spdlog::info("Test event");
 }

@@ -2,30 +2,30 @@
 
 #include <functional>
 
-// TODO: Event::Type?
-enum class EventType
-{
-  kNone = 0,
-  kTest,
-  kOpenFile,
-  kCloseApp,
-};
-
 class Event
 {
 public:
+  enum class Type
+  {
+    kNone = 0,
+    kTest,
+    kOpenFile,
+    kSave,
+    kLoad,
+  };
+
   Event() = default;
   Event(const Event&) = default;
   Event& operator=(const Event&) = default;
 
   virtual ~Event() = default;
-  virtual EventType GetType() const = 0;
+  virtual Type GetType() const = 0;
 };
 
 class OpenFileEvent final : public Event
 {
 public:
-  static constexpr EventType eventType = EventType::kOpenFile;
+  static constexpr Type eventType = Type::kOpenFile;
 
   OpenFileEvent() = default;
   OpenFileEvent(std::string&& aFilename)
@@ -33,7 +33,7 @@ public:
   {}
 
   virtual ~OpenFileEvent() = default;
-  virtual EventType GetType() const
+  virtual Type GetType() const
   {
     return eventType;
   }
@@ -44,25 +44,43 @@ public:
 class TestEvent final : public Event
 {
 public:
-  static constexpr EventType eventType = EventType::kTest;
+  static constexpr Type eventType = Type::kTest;
 
   virtual ~TestEvent() = default;
-  virtual EventType GetType() const
+  virtual Type GetType() const
   {
     return eventType;
   }
 };
 
-class CloseAppEvent final : public Event
+class SaveEvent final : public Event
 {
 public:
-  static constexpr EventType eventType = EventType::kCloseApp;
+  static constexpr Type eventType = Type::kSave;
 
-  virtual ~CloseAppEvent() = default;
-  virtual EventType GetType() const
+  virtual ~SaveEvent() = default;
+  virtual Type GetType() const
   {
     return eventType;
   }
+};
+
+class LoadEvent final : public Event
+{
+public:
+  static constexpr Type eventType = Type::kLoad;
+
+  LoadEvent(std::string&& aFilename)
+    : filename(std::move(aFilename))
+  {}
+
+  virtual ~LoadEvent() = default;
+  virtual Type GetType() const
+  {
+    return eventType;
+  }
+
+  std::string filename{};
 };
 
 class EventDispatcher final
@@ -70,7 +88,7 @@ class EventDispatcher final
 public:
   using Execution = std::function<void(const Event&)>;
 
-  void Subscribe(const EventType& aEventType, Execution&& aExecution);
+  void Subscribe(const Event::Type& aEventType, Execution&& aExecution);
 
   template <class T>
   void Dispatch(const T& aEvent) const
@@ -84,5 +102,5 @@ public:
   }
 
 private:
-  std::unordered_map<EventType, std::vector<Execution>> observers;
+  std::unordered_map<Event::Type, std::vector<Execution>> observers;
 };

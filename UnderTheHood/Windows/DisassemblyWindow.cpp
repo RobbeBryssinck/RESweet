@@ -20,7 +20,8 @@ DisassemblyWindow::~DisassemblyWindow()
 
 void DisassemblyWindow::Setup()
 {
-  Application::Get().GetDispatcher().Subscribe(EventType::kOpenFile, std::bind(&DisassemblyWindow::OnOpenFile, this, std::placeholders::_1));
+  Application::Get().GetDispatcher().Subscribe(Event::Type::kOpenFile, std::bind(&DisassemblyWindow::OnOpenFile, this, std::placeholders::_1));
+  Application::Get().GetDispatcher().Subscribe(Event::Type::kLoad, std::bind(&DisassemblyWindow::OnLoad, this, std::placeholders::_1));
 }
 
 void DisassemblyWindow::Update()
@@ -33,15 +34,6 @@ void DisassemblyWindow::Update()
   count += 1;
 
   ImGui::Text("Count: %d", count);
-
-  if (ImGui::Button("Load"))
-  {
-    FileFilters filters{ {"RESweet save file", "*.resf"} };
-    const std::string dialogueTitle = "Open RESweet save file";
-    const std::string fileToLoad = OpenFileDialogue(&dialogueTitle, &filters);
-
-    LoadFromFile(fileToLoad);
-  }
 
   if (IsDisassembled())
   {
@@ -168,7 +160,7 @@ void DisassemblyWindow::RenderDisassemblyModal(const Disassembly::Function& acFu
 
 void DisassemblyWindow::OnOpenFile(const Event& aEvent)
 {
-  RE_ASSERT(aEvent.GetType() == EventType::kOpenFile);
+  RE_ASSERT(aEvent.GetType() == Event::Type::kOpenFile);
 
   const OpenFileEvent& fileEvent = static_cast<const OpenFileEvent&>(aEvent);
 
@@ -180,6 +172,15 @@ void DisassemblyWindow::OnOpenFile(const Event& aEvent)
     functions = Disassembly::Disassemble(pBinary);
   else
     fileToDisassemble = "";
+}
+
+void DisassemblyWindow::OnLoad(const Event& aEvent)
+{
+  RE_ASSERT(aEvent.GetType() == Event::Type::kLoad);
+
+  const LoadEvent& loadEvent = static_cast<const LoadEvent&>(aEvent);
+
+  LoadFromFile(loadEvent.filename);
 }
 
 std::string DisassemblyWindow::BuildInstructionString(const cs_insn& apInstruction)
