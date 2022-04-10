@@ -11,6 +11,8 @@ Application::Application()
 {
   RE_ASSERT(!s_application);
   s_application = this;
+
+  dispatcher.Subscribe(Event::Type::kExit, std::bind(&Application::OnExit, this, std::placeholders::_1));
 }
 
 void Application::AddWindow(Window* apWindow)
@@ -23,7 +25,7 @@ void Application::Run()
   for (Window* window : windows)
     window->Setup();
 
-  while (true)
+  while (isRunning)
   {
     if (!uiRunner.BeginFrame())
       break;
@@ -33,4 +35,11 @@ void Application::Run()
 
     uiRunner.EndFrame();
   }
+}
+
+void Application::OnExit(const Event& aEvent)
+{
+  RE_ASSERT(aEvent.GetType() == Event::Type::kExit);
+
+  isRunning = false;
 }

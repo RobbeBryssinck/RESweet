@@ -56,8 +56,8 @@ void MenuWindow::Update()
 
   ImGui::Separator();
 
-  if (ImGui::Button("Dispatch test event"))
-    Application::Get().GetDispatcher().Dispatch(TestEvent());
+  if (ImGui::Button("Exit"))
+    Application::Get().GetDispatcher().Dispatch(ExitEvent());
 
   ImGui::End();
 }
