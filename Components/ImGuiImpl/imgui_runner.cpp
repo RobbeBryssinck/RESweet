@@ -12,6 +12,8 @@
 #include <locale>
 #include <codecvt>
 
+static bool s_closeApplication = false;
+
 // Data
 static ID3D11Device*            g_pd3dDevice = NULL;
 static ID3D11DeviceContext*     g_pd3dDeviceContext = NULL;
@@ -111,6 +113,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         break;
     case WM_DESTROY:
         ::PostQuitMessage(0);
+        s_closeApplication = true;
         return 0;
     case WM_DPICHANGED:
         if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_DpiEnableScaleViewports)
@@ -184,7 +187,7 @@ imgui_runner::~imgui_runner()
   ::UnregisterClass(wc.lpszClassName, wc.hInstance);
 }
 
-void imgui_runner::BeginFrame()
+bool imgui_runner::BeginFrame()
 {
   MSG msg;
   while (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
@@ -193,9 +196,14 @@ void imgui_runner::BeginFrame()
     ::DispatchMessage(&msg);
   }
 
+  if (s_closeApplication)
+    return false;
+
   ImGui_ImplDX11_NewFrame();
   ImGui_ImplWin32_NewFrame();
   ImGui::NewFrame();
+
+  return true;
 }
 
 void imgui_runner::EndFrame()

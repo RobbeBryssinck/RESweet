@@ -2,11 +2,13 @@
 
 #include <functional>
 
+// TODO: Event::Type?
 enum class EventType
 {
   kNone = 0,
   kTest,
   kOpenFile,
+  kCloseApp,
 };
 
 class Event
@@ -45,6 +47,18 @@ public:
   static constexpr EventType eventType = EventType::kTest;
 
   virtual ~TestEvent() = default;
+  virtual EventType GetType() const
+  {
+    return eventType;
+  }
+};
+
+class CloseAppEvent final : public Event
+{
+public:
+  static constexpr EventType eventType = EventType::kCloseApp;
+
+  virtual ~CloseAppEvent() = default;
   virtual EventType GetType() const
   {
     return eventType;

@@ -21,7 +21,6 @@ public:
   void AddWindow(Window* apWindow);
 
   void Run();
-  void OnEvent(const Event& acEvent);
   
 private:
   static Application* s_application;
@@ -29,6 +28,4 @@ private:
   std::vector<Window*> windows{};
   EventDispatcher dispatcher{};
   imgui_runner uiRunner;
-
-  bool isRunning = true;
 };

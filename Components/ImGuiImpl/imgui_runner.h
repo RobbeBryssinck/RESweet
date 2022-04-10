@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <WinUser.h>
 #include <string>
+#include <functional>
 
 class imgui_runner
 {
@@ -12,7 +13,7 @@ public:
   imgui_runner(const imgui_runner&) = default;
   imgui_runner& operator=(const imgui_runner&) = default;
 
-  void BeginFrame();
+  bool BeginFrame();
   void EndFrame();
 
 private:
