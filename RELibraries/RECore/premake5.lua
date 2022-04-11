@@ -6,5 +6,8 @@ project "RECore"
 
    includedirs 
    {
-      "../../Vendor/spdlog/include"
+      "../../Vendor/spdlog/include",
+      "../../Vendor/googletest/include"
    }
+
+   links "googletest"
