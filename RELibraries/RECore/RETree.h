@@ -17,6 +17,8 @@ public:
     pHead = new Node;
     pHead->value.first = 5;
     pHead->value.second = 3.f;
+    pHead->pLeft = nullptr;
+    pHead->pRight = nullptr;
   }
 
   const T* operator[](uint32_t aKey) const
@@ -27,7 +29,10 @@ public:
       if (pCurrentHead->value.first == aKey)
         return &pCurrentHead->value.second;
 
-      pCurrentHead = pCurrentHead->pNext;
+      if (aKey > pCurrentHead->value.first)
+        pCurrentHead = pCurrentHead->pRight;
+      else if (aKey < pCurrentHead->value.first)
+        pCurrentHead = pCurrentHead->pLeft;
     }
 
     return nullptr;
@@ -41,7 +46,7 @@ public:
       if (pCurrentHead->value.first == aKey)
         return &pCurrentHead->value.second;
 
-      pCurrentHead = pCurrentHead->pNext;
+      pCurrentHead = pCurrentHead->pRight;
     }
 
     return nullptr;
@@ -49,13 +54,24 @@ public:
 
   void Insert(uint32_t aKey, const T& aValue)
   {
+    if (!pHead)
+    {
+      pHead = new Node;
+      pHead->value.first = aKey;
+      pHead->value.second = aValue;
+      pHead->pLeft = nullptr;
+      pHead->pRight = nullptr;
+
+      return;
+    }
   }
 
 private:
   struct Node
   {
     REPair<uint32_t, T> value{};
-    Node* pNext = nullptr;
+    Node* pLeft = nullptr;
+    Node* pRight = nullptr;
   };
 
   Node* pHead = nullptr;
