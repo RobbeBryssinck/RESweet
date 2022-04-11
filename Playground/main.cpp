@@ -1,5 +1,8 @@
 #include <REPair.h>
 #include <RETree.h>
+#include <REList.h>
+
+#include <list>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/spdlog-inl.h>
@@ -31,6 +34,19 @@ int main(int argc, char* argv[])
     spdlog::info("Result: {}", *result);
   else
     spdlog::error("Failed to fetch result");
+
+  REList<float> list{};
+  list.Insert(5.6f);
+  list.Insert(3.2f);
+  list.Insert(14.0f);
+  list.Insert(0.7f);
+
+  list.Remove(14.0f);
+
+  for (const auto& item : list)
+    spdlog::info("Item: {}", item);
+
+  list.Clear();
 
   return 0;
 }

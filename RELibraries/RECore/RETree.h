@@ -50,9 +50,6 @@ private:
   {
     Node* FindEntry(const uint32_t aKey)
     {
-      if (value.first == aKey)
-        return this;
-
       if (aKey > value.first)
       {
         if (pRight)
@@ -67,13 +64,12 @@ private:
 
         return nullptr;
       }
+
+      return this;
     }
 
     Node* FindPlacement(const uint32_t aKey)
     {
-      if (value.first == aKey)
-        return nullptr;
-
       if (aKey > value.first)
       {
         if (pRight)
@@ -88,6 +84,8 @@ private:
 
         return this;
       }
+
+      return nullptr;
     }
 
     REPair<uint32_t, T> value{};
