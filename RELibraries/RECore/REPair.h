@@ -3,9 +3,12 @@
 template <class First, class Second>
 class REPair
 {
-  REPair(First aFirst, Second aSecond);
-
 public:
+
+  REPair(First aFirst, Second aSecond)
+    : first(aFirst), second(aSecond)
+  {}
+
   First first;
   Second second;
 };

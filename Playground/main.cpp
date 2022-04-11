@@ -1,3 +1,5 @@
+#include <REPair.h>
+
 #include <spdlog/spdlog.h>
 #include <spdlog/spdlog-inl.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -16,7 +18,9 @@ int main(int argc, char* argv[])
 {
   InitializeLogger();
 
-  spdlog::info("Playground main!");
+  REPair<int, float> pair(5, 6.f);
+
+  spdlog::info("First: {}, second: {}", pair.first, pair.second);
 
   return 0;
 }
