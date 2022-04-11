@@ -9,66 +9,87 @@ template <class T>
 class RETree
 {
 public:
-  //RETree() = default;
-
-  // TODO: test ctor, delete
-  RETree()
-  {
-    pHead = new Node;
-    pHead->value.first = 5;
-    pHead->value.second = 3.f;
-    pHead->pLeft = nullptr;
-    pHead->pRight = nullptr;
-  }
+  RETree() = default;
 
   const T* operator[](uint32_t aKey) const
   {
-    Node* pCurrentHead = pHead;
-    while (pCurrentHead)
-    {
-      if (pCurrentHead->value.first == aKey)
-        return &pCurrentHead->value.second;
+    if (!pHead)
+      return nullptr;
 
-      if (aKey > pCurrentHead->value.first)
-        pCurrentHead = pCurrentHead->pRight;
-      else if (aKey < pCurrentHead->value.first)
-        pCurrentHead = pCurrentHead->pLeft;
-    }
+    Node* pEntry = pHead->FindEntry(aKey);
+    if (!pEntry)
+      return nullptr;
 
-    return nullptr;
+    return &pEntry->value.second;
   }
 
-  const T* Find(uint32_t aKey) const
-  {
-    Node* pCurrentHead = pHead;
-    while (pCurrentHead)
-    {
-      if (pCurrentHead->value.first == aKey)
-        return &pCurrentHead->value.second;
-
-      pCurrentHead = pCurrentHead->pRight;
-    }
-
-    return nullptr;
-  }
-
-  void Insert(uint32_t aKey, const T& aValue)
+  void Insert(const uint32_t aKey, const T& aValue)
   {
     if (!pHead)
     {
-      pHead = new Node;
-      pHead->value.first = aKey;
-      pHead->value.second = aValue;
-      pHead->pLeft = nullptr;
-      pHead->pRight = nullptr;
-
+      pHead = new Node();
+      pHead->value = REPair<uint32_t, T>(aKey, aValue);
       return;
     }
+
+    Node* pEntry = pHead->FindPlacement(aKey);
+    if (!pEntry)
+      return;
+
+    Node* pNewNode = new Node();
+    pNewNode->value = REPair<uint32_t, T>(aKey, aValue);
+
+    if (aKey > pEntry->value.first)
+      pEntry->pRight = pNewNode;
+    else if (aKey < pEntry->value.first)
+      pEntry->pLeft = pNewNode;
   }
 
 private:
   struct Node
   {
+    Node* FindEntry(const uint32_t aKey)
+    {
+      if (value.first == aKey)
+        return this;
+
+      if (aKey > value.first)
+      {
+        if (pRight)
+          return pRight->FindEntry(aKey);
+
+        return nullptr;
+      }
+      else if (aKey < value.first)
+      {
+        if (pLeft)
+          return pLeft->FindEntry(aKey);
+
+        return nullptr;
+      }
+    }
+
+    Node* FindPlacement(const uint32_t aKey)
+    {
+      if (value.first == aKey)
+        return nullptr;
+
+      if (aKey > value.first)
+      {
+        if (pRight)
+          return pRight->FindPlacement(aKey);
+
+        return this;
+      }
+      else if (aKey < value.first)
+      {
+        if (pLeft)
+          return pLeft->FindPlacement(aKey);
+
+        return this;
+      }
+    }
+
     REPair<uint32_t, T> value{};
     Node* pLeft = nullptr;
     Node* pRight = nullptr;

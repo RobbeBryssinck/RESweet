@@ -23,6 +23,9 @@ int main(int argc, char* argv[])
   spdlog::info("First: {}, second: {}", pair.first, pair.second);
 
   RETree<float> tree{};
+  tree.Insert(5, 4.2f);
+  tree.Insert(3, 6.8f);
+  tree.Insert(8, 1.1f);
   const float* result = tree[5];
   if (result)
     spdlog::info("Result: {}", *result);
