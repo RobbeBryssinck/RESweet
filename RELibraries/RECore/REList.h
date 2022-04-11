@@ -68,6 +68,20 @@ public:
 
   constexpr bool IsEmpty() const { return !pHead; }
 
+  size_t GetSize() const
+  {
+    size_t size = 0;
+
+    Node* pCurrent = pHead;
+    while (pCurrent)
+    {
+      size++;
+      pCurrent = pCurrent->pNext;
+    }
+
+    return size;
+  }
+
   struct Node;
 
   struct Iterator
