@@ -1,4 +1,5 @@
 #include <REPair.h>
+#include <RETree.h>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/spdlog-inl.h>
@@ -19,8 +20,14 @@ int main(int argc, char* argv[])
   InitializeLogger();
 
   REPair<int, float> pair(5, 6.f);
-
   spdlog::info("First: {}, second: {}", pair.first, pair.second);
+
+  RETree<float> tree{};
+  const float* result = tree[5];
+  if (result)
+    spdlog::info("Result: {}", *result);
+  else
+    spdlog::error("Failed to fetch result");
 
   return 0;
 }
