@@ -6,7 +6,7 @@ namespace
 {
   TEST(Binary, LoadPe64)
   {
-    std::shared_ptr<Binary> pBinary = Parsing::ParseFile("../Samples/test64.exe");
+    std::shared_ptr<Binary> pBinary = Parsing::ParseFile("Samples/test64.exe");
 
     EXPECT_NE(pBinary, nullptr);
   }
