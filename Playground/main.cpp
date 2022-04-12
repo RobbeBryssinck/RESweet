@@ -1,9 +1,3 @@
-#include <REPair.h>
-#include <RETree.h>
-#include <REList.h>
-
-#include <list>
-
 #include <spdlog/spdlog.h>
 #include <spdlog/spdlog-inl.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
@@ -21,32 +15,6 @@ void InitializeLogger()
 int main(int argc, char* argv[])
 {
   InitializeLogger();
-
-  REPair<int, float> pair(5, 6.f);
-  spdlog::info("First: {}, second: {}", pair.first, pair.second);
-
-  RETree<float> tree{};
-  tree.Insert(5, 4.2f);
-  tree.Insert(3, 6.8f);
-  tree.Insert(8, 1.1f);
-  const float* result = tree[5];
-  if (result)
-    spdlog::info("Result: {}", *result);
-  else
-    spdlog::error("Failed to fetch result");
-
-  REList<float> list{};
-  list.Insert(5.6f);
-  list.Insert(3.2f);
-  list.Insert(14.0f);
-  list.Insert(0.7f);
-
-  list.Remove(14.0f);
-
-  for (const auto& item : list)
-    spdlog::info("Item: {}", item);
-
-  list.Clear();
 
   return 0;
 }

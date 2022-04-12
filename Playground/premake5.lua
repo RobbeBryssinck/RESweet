@@ -19,3 +19,4 @@ project "Playground"
    }
 
    links "RECore"
+   links "BinLoader"

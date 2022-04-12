@@ -8,7 +8,7 @@ bool Reader::LoadFromFile(const std::string& acFilename)
 {
   if (!std::filesystem::exists(acFilename))
   {
-    spdlog::error("File does not exist: {}", acFilename);
+    spdlog::error("File does not exist: {}, current directory: {}", acFilename, std::filesystem::current_path().string());
     return false;
   }
 
