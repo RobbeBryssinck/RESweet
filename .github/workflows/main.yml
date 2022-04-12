@@ -29,4 +29,7 @@ jobs:
     
     - name: Run tests
       timeout-minutes: 5
-      run: ./Build/Bin/Debug/RECore_Tests.exe
+      run: |
+        cd Build/Bin/Debug/
+        ./RECore_Tests.exe
+        ./BinLoader_Tests.exe
