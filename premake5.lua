@@ -19,7 +19,7 @@ workspace "RESweet"
    filter { }
 
    targetdir ("Build/Bin/%{cfg.longname}")
-   objdir ("Build/Obj/%{cfg.longname}")
+   objdir ("Build/Obj")
 
 include("Vendor")
 include("RELibraries")

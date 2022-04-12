@@ -1,9 +1,9 @@
 #pragma once
 
-#include <windows.h>
-#include <WinUser.h>
 #include <string>
 #include <functional>
+
+struct GLFWwindow;
 
 class imgui_runner
 {
@@ -17,6 +17,5 @@ public:
   void EndFrame();
 
 private:
-  HWND hwnd;
-  WNDCLASSEX wc;
+  GLFWwindow* window{};
 };

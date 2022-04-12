@@ -6,36 +6,59 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_runner.h"
+#include <GLFW/glfw3.h>
 #include <spdlog/spdlog.h>
-#include <d3d11.h>
-#include <tchar.h>
-#include <locale>
-#include <codecvt>
 
 static bool s_closeApplication = false;
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
+#pragma comment(lib, "legacy_stdio_definitions")
+#endif
+
+static void glfw_error_callback(int error, const char* description)
+{
+  fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+}
+
 imgui_runner::imgui_runner(const std::string& acString)
 {
-  std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-  std::wstring wide = converter.from_bytes(acString);
-  const wchar_t* pWide = wide.c_str();
-
-  // Create application window
-  wc = { sizeof(WNDCLASSEX), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(NULL), NULL, NULL, NULL, NULL, wide.c_str(), NULL};
-  ::RegisterClassEx(&wc);
-  hwnd = ::CreateWindow(wc.lpszClassName, wide.c_str(), WS_OVERLAPPEDWINDOW, 100, 100, 1280, 800, NULL, NULL, wc.hInstance, NULL);
-
-  // Initialize Direct3D
-  if (!CreateDeviceD3D(hwnd))
+  glfwSetErrorCallback(glfw_error_callback);
+  if (!glfwInit())
   {
-      CleanupDeviceD3D();
-      ::UnregisterClass(wc.lpszClassName, wc.hInstance);
-      return;
+    spdlog::error("Failed to init glfw");
+    return;
   }
 
-  // Show the window
-  ::ShowWindow(hwnd, SW_MAXIMIZE);
-  ::UpdateWindow(hwnd);
+  // Decide GL+GLSL versions
+#if defined(IMGUI_IMPL_OPENGL_ES2)
+  // GL ES 2.0 + GLSL 100
+  const char* glsl_version = "#version 100";
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+  glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+#elif defined(__APPLE__)
+  // GL 3.2 + GLSL 150
+  const char* glsl_version = "#version 150";
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);  // 3.2+ only
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // Required on Mac
+#else
+  // GL 3.0 + GLSL 130
+  const char* glsl_version = "#version 130";
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#endif
+
+  // Create window with graphics context
+  window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+  if (window == NULL)
+  {
+    spdlog::error("Window creation failed");
+    return;
+  }
+  glfwMakeContextCurrent(window);
+  glfwSwapInterval(1); // Enable vsync
 
   // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
@@ -57,36 +80,32 @@ imgui_runner::imgui_runner(const std::string& acString)
   }
 
   // Setup Platform/Renderer backends
-  ImGui_ImplWin32_Init(hwnd);
-  ImGui_ImplDX11_Init(g_pd3dDevice, g_pd3dDeviceContext);
+  ImGui_ImplGlfw_InitForOpenGL(window, true);
+  ImGui_ImplOpenGL3_Init(glsl_version);
 }
 
 imgui_runner::~imgui_runner()
 {
-  // Cleanup
-  ImGui_ImplDX11_Shutdown();
-  ImGui_ImplWin32_Shutdown();
+  ImGui_ImplOpenGL3_Shutdown();
+  ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();
 
-  CleanupDeviceD3D();
-  ::DestroyWindow(hwnd);
-  ::UnregisterClass(wc.lpszClassName, wc.hInstance);
+  glfwDestroyWindow(window);
+  glfwTerminate();
 }
 
 bool imgui_runner::BeginFrame()
 {
-  MSG msg;
-  while (::PeekMessage(&msg, NULL, 0U, 0U, PM_REMOVE))
-  {
-    ::TranslateMessage(&msg);
-    ::DispatchMessage(&msg);
-  }
+  // TODO:
+  //while (!glfwWindowShouldClose(window))
+
+  glfwPollEvents();
 
   if (s_closeApplication)
     return false;
 
-  ImGui_ImplDX11_NewFrame();
-  ImGui_ImplWin32_NewFrame();
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
 
   return true;
@@ -99,18 +118,20 @@ void imgui_runner::EndFrame()
 
   // Rendering
   ImGui::Render();
-  const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
-  g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, NULL);
-  g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
-  ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
-
-  // Update and Render additional Platform Windows
+  int display_w, display_h;
+  glfwGetFramebufferSize(window, &display_w, &display_h);
+  glViewport(0, 0, display_w, display_h);
+  glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+  glClear(GL_COLOR_BUFFER_BIT);
+  ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  
   if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
   {
+      GLFWwindow* backup_current_context = glfwGetCurrentContext();
       ImGui::UpdatePlatformWindows();
       ImGui::RenderPlatformWindowsDefault();
+      glfwMakeContextCurrent(backup_current_context);
   }
 
-  g_pSwapChain->Present(1, 0); // Present with vsync
-  //g_pSwapChain->Present(0, 0); // Present without vsync
+  glfwSwapBuffers(window);
 }

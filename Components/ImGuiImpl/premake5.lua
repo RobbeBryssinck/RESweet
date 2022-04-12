@@ -7,7 +7,15 @@ project "ImGuiImpl"
    includedirs 
    {
       "../../Vendor/imgui",
-      "../../Vendor/spdlog/include"
+      "../../Vendor/spdlog/include",
+      "../../Vendor/GLFW/include"
+   }
+
+   libdirs
+   {
+      "../../Build/Bin/%{cfg.longname}"
    }
 
    links "imgui"
+   links "GLFW"
+   links "opengl32.lib"
