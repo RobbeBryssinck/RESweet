@@ -14,8 +14,8 @@ project "BinLoader_Tests"
 
    libdirs
    {
-      "../Build/Bin/%{cfg.longname}"
+      "../Build/Bin/%{cfg.longname}",
    }
 
-   links "BinLoader"
    links "googletest"
+   links "BinLoader"
