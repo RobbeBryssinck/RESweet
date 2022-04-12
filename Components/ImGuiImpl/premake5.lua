@@ -11,11 +11,6 @@ project "ImGuiImpl"
       "../../Vendor/GLFW/include"
    }
 
-   libdirs
-   {
-      "../../Build/Bin/%{cfg.longname}"
-   }
-
    links "imgui"
    links "GLFW"
    links "opengl32.lib"
