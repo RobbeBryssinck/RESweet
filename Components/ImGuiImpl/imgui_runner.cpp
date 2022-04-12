@@ -20,7 +20,7 @@ static void glfw_error_callback(int error, const char* description)
   fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
 
-imgui_runner::imgui_runner(const std::string& acString)
+imgui_runner::imgui_runner(const std::string& aName)
 {
   glfwSetErrorCallback(glfw_error_callback);
   if (!glfwInit())
@@ -51,27 +51,31 @@ imgui_runner::imgui_runner(const std::string& acString)
 #endif
 
   // Create window with graphics context
-  window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
+  glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+  window = glfwCreateWindow(1280, 1024, aName.c_str(), NULL, NULL);
   if (window == NULL)
   {
     spdlog::error("Window creation failed");
     return;
   }
+
+  glfwSetWindowCloseCallback(window, [](GLFWwindow* apWindow)
+    {
+      s_closeApplication = true;
+    });
+
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1); // Enable vsync
 
-  // Setup Dear ImGui context
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
   ImGuiIO& io = ImGui::GetIO(); (void)io;
-  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
-  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
-  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+  io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+  io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+  io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-  // Setup Dear ImGui style
   ImGui::StyleColorsDark();
 
-  // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
   ImGuiStyle& style = ImGui::GetStyle();
   if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
   {
@@ -79,7 +83,6 @@ imgui_runner::imgui_runner(const std::string& acString)
       style.Colors[ImGuiCol_WindowBg].w = 1.0f;
   }
 
-  // Setup Platform/Renderer backends
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init(glsl_version);
 }
@@ -96,9 +99,6 @@ imgui_runner::~imgui_runner()
 
 bool imgui_runner::BeginFrame()
 {
-  // TODO:
-  //while (!glfwWindowShouldClose(window))
-
   glfwPollEvents();
 
   if (s_closeApplication)
