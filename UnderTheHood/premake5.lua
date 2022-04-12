@@ -21,6 +21,7 @@ project "UnderTheHood"
    }
 
    links "RECore"
+   links "Strings"
    links "BinLoader"
    links "Disassembly"
    links "d3d11"
