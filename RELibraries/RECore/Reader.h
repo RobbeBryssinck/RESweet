@@ -19,4 +19,5 @@ public:
   }
   bool ReadImpl(void* apDestination, const size_t acLength, bool aPeak = false);
   std::string ReadString();
+  std::string ReadString(const size_t aLength);
 };

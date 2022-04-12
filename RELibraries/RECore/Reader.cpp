@@ -47,3 +47,11 @@ std::string Reader::ReadString()
   Advance(string.size() + 1);
   return string;
 }
+
+std::string Reader::ReadString(const size_t aLength)
+{
+  std::string string{};
+  string.assign(reinterpret_cast<const char*>(GetDataAtPosition()), aLength);
+  Advance(string.size());
+  return string;
+}

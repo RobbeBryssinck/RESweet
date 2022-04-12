@@ -14,7 +14,12 @@ namespace Strings
 
 constexpr bool IsValidCharacter(const char aCharacter)
 {
-  return (aCharacter > 0x1F && aCharacter < 0x7F) || aCharacter == '\n' || aCharacter == '\r';
+  return (aCharacter > 0x1F && aCharacter < 0x7F) || aCharacter == '\r';
+}
+
+constexpr bool IsEndOfString(const char aCharacter)
+{
+  return aCharacter == '\00' || aCharacter == '\n';
 }
 
 std::vector<std::string> GetStringsFromData(Reader& aReader, const int acMinStringLength = 5)
@@ -32,13 +37,23 @@ std::vector<std::string> GetStringsFromData(Reader& aReader, const int acMinStri
       if (startPosition == invalidPosition)
         startPosition = aReader.position - 1;
     }
-    else if (currentCharacter == '\00')
+    else if (IsEndOfString(currentCharacter))
     {
       if (startPosition != invalidPosition
           && aReader.position - startPosition >= (acMinStringLength + 1)) // +1 to min string length to account for null byte
       {
+        size_t stringSize = aReader.position - startPosition;
+
         aReader.position = startPosition;
-        strings.push_back(std::move(aReader.ReadString()));
+
+        std::string str{};
+        if (currentCharacter == '\00')
+          str = aReader.ReadString();
+        else
+          str = aReader.ReadString(stringSize);
+
+        strings.push_back(std::move(str));
+
         spdlog::debug("String at position {:X}: {}", startPosition, strings.back());
       }
 

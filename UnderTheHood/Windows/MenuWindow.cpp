@@ -38,12 +38,14 @@ void MenuWindow::Update()
     Reader reader{};
     if (!reader.LoadFromFile(filename))
       spdlog::error("Failed to load buffer from file.");
+    else
+    {
+      saveManager.resf.Deserialize(reader);
 
-    saveManager.resf.Deserialize(reader);
+      openedFile = saveManager.resf.header.filename;
 
-    openedFile = saveManager.resf.header.filename;
-
-    Application::Get().GetDispatcher().Dispatch(LoadEvent());
+      Application::Get().GetDispatcher().Dispatch(LoadEvent());
+    }
   }
 
   ImGui::SameLine();
