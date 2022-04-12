@@ -3,7 +3,7 @@ project "BinLoader_Tests"
    kind "ConsoleApp"
    language "C++"
 
-   files {"**.h", "**.cpp"}
+   files {"**.h", "**.cpp", "../main.cpp"}
 
    includedirs 
    {

@@ -3,9 +3,9 @@ project "RECore_Tests"
    kind "ConsoleApp"
    language "C++"
 
-   files {"**.h", "**.cpp"}
+   files {"**.h", "**.cpp", "../main.cpp"}
 
-   includedirs 
+   includedirs
    {
       "../../RELibraries/RECore",
       "../../Vendor/googletest/include"
