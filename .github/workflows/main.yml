@@ -31,5 +31,37 @@ jobs:
       timeout-minutes: 5
       run: |
         cd Generated
-        ./Build/Bin/Debug/RECore_Tests.exe
-        ./Build/Bin/Debug/BinLoader_Tests.exe
+        ./../Build/Bin/Debug/RECore_Tests.exe
+        ./../Build/Bin/Debug/BinLoader_Tests.exe
+  
+  build-release:
+    name: Build Windows Release
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+        
+    - name: Add msbuild to PATH
+      uses: microsoft/setup-msbuild@v1.0.2
+  
+    - name: Generate solution
+      run: ./GenerateSolution.bat
+      
+    - name: Build Solution (windows)
+      run: |
+        cd Generated
+        MSBuild.exe "RESweet.sln" -m -property:Configuration=Release
+    
+    - name: Run tests
+      timeout-minutes: 5
+      run: |
+        cd Generated
+        ./../Build/Bin/Debug/RECore_Tests.exe
+        ./../Build/Bin/Debug/BinLoader_Tests.exe
+      
+    - uses: actions/upload-artifact@v3
+      with:
+        name: under-the-hood
+        path: Build/Bin/Release/UnderTheHood.exe
