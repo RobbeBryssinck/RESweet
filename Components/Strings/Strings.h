@@ -63,6 +63,19 @@ std::vector<std::string> GetStringsFromData(Reader& aReader, const int acMinStri
       startPosition = invalidPosition;
   }
 
+  // if string is at end of file
+  if (startPosition != invalidPosition &&
+      aReader.position - startPosition >= (acMinStringLength + 1)) // +1 to min string length to account for null byte
+  {
+    size_t stringSize = aReader.position - startPosition;
+    aReader.position = startPosition;
+    strings.push_back(std::move(aReader.ReadString(stringSize)));
+
+    spdlog::debug("String at position {:X}: {}", startPosition, strings.back());
+  }
+
+  spdlog::debug("Strings count: {}", strings.size());
+
   return strings;
 }
 

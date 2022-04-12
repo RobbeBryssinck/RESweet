@@ -19,3 +19,4 @@ project "Strings_Tests"
    }
 
    links "googletest"
+   links "RECore"
