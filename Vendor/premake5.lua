@@ -1,3 +1,5 @@
 group("Vendor")
 include("imgui")
 include("googletest")
+include("GLFW")
+include("glad")
