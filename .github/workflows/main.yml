@@ -34,6 +34,7 @@ jobs:
         ../Build/Bin/Debug/RECore_Tests.exe
         ../Build/Bin/Debug/BinLoader_Tests.exe
         ../Build/Bin/Debug/Strings_Tests.exe
+        ../Build/Bin/Debug/Disassembly_Tests.exe
   
   build-release:
     name: Build Windows Release
@@ -62,6 +63,7 @@ jobs:
         ../Build/Bin/Release/RECore_Tests.exe
         ../Build/Bin/Release/BinLoader_Tests.exe
         ../Build/Bin/Release/Strings_Tests.exe
+        ../Build/Bin/Release/Disassembly_Tests.exe
       
     - uses: actions/upload-artifact@v3
       with:
