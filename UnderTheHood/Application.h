@@ -7,8 +7,12 @@
 
 #include <vector>
 
+#ifdef _WIN32
 #define RE_ASSERT(x) if (!(x)) \
   DebugBreak();
+#else
+#define RE_ASSERT(x) (x)
+#endif
 
 class Application
 {
