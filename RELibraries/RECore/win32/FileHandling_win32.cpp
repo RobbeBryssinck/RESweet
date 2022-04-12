@@ -1,6 +1,6 @@
 #include "../FileHandling.h"
 
-// TODO: ifdef WIN32
+#ifdef _WIN32
 
 #include <Windows.h>
 #include <ShObjIdl.h>
@@ -81,3 +81,5 @@ std::string OpenFileDialogue(const std::string* apcDialogueName, FileFilters* ap
 
   return filePath;
 }
+
+#endif
