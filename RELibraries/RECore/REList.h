@@ -9,7 +9,7 @@ public:
   T& GetLast() const
   {
     Node* pCurrent = pHead;
-    while (pCurrent)
+    while (pCurrent->pNext)
       pCurrent = pCurrent->pNext;
 
     return pCurrent->value;
