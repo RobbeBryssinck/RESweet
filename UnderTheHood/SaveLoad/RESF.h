@@ -50,7 +50,7 @@ struct RESF
   std::vector<std::string> strings{};
 };
 
-class SaveManager
+class SaveLoadManager
 {
 public:
   bool IsReadyToSave() const

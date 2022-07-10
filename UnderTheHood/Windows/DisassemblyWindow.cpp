@@ -192,12 +192,12 @@ std::string DisassemblyWindow::BuildInstructionString(const cs_insn& apInstructi
 
 void DisassemblyWindow::Save() const
 {
-  SaveManager& saveManager = Application::Get().GetSaveManager();
+  SaveLoadManager& saveLoadManager = Application::Get().GetSaveLoadManager();
 
-  saveManager.resf.functions.reserve(functions.size());
+  saveLoadManager.resf.functions.reserve(functions.size());
   for (auto& [address, function] : functions)
   {
-    auto& savedFunction = saveManager.resf.functions.emplace_back();
+    auto& savedFunction = saveLoadManager.resf.functions.emplace_back();
 
     savedFunction.address = address;
     savedFunction.name = function.name;
@@ -217,17 +217,17 @@ void DisassemblyWindow::Save() const
     }
   }
 
-  saveManager.isDisassemblyReady = true;
+  saveLoadManager.isDisassemblyReady = true;
 }
 
 void DisassemblyWindow::Load()
 {
   Destroy();
 
-  SaveManager& saveManager = Application::Get().GetSaveManager();
+  SaveLoadManager& saveLoadManager = Application::Get().GetSaveLoadManager();
 
-  functions.reserve(saveManager.resf.functions.size());
-  for (auto& savedFunction : saveManager.resf.functions)
+  functions.reserve(saveLoadManager.resf.functions.size());
+  for (auto& savedFunction : saveLoadManager.resf.functions)
   {
     auto& function = functions[savedFunction.address];
 

@@ -33,16 +33,16 @@ void MenuWindow::Update()
     const std::string dialogueTitle = "Open RESweet save file";
     const std::string filename = OpenFileDialogue(&dialogueTitle, &filters);
 
-    SaveManager& saveManager = Application::Get().GetSaveManager();
+    SaveLoadManager& saveLoadManager = Application::Get().GetSaveLoadManager();
 
     Reader reader{};
     if (!reader.LoadFromFile(filename))
       spdlog::error("Failed to load buffer from file.");
     else
     {
-      saveManager.resf.Deserialize(reader);
+      saveLoadManager.resf.Deserialize(reader);
 
-      openedFile = saveManager.resf.header.filename;
+      openedFile = saveLoadManager.resf.header.filename;
 
       Application::Get().GetDispatcher().Dispatch(LoadEvent());
     }
@@ -54,12 +54,12 @@ void MenuWindow::Update()
   {
     Application::Get().GetDispatcher().Dispatch(SaveEvent());
 
-    SaveManager& saveManager = Application::Get().GetSaveManager();
+    SaveLoadManager& saveLoadManager = Application::Get().GetSaveLoadManager();
 
-    saveManager.resf.header.filename = openedFile;
-    saveManager.SetFilePath(openedFile);
+    saveLoadManager.resf.header.filename = openedFile;
+    saveLoadManager.SetFilePath(openedFile);
 
-    bool saveResult = saveManager.Save();
+    bool saveResult = saveLoadManager.Save();
     spdlog::info("Save succeeded? {}", saveResult);
   }
 
