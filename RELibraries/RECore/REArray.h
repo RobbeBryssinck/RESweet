@@ -4,6 +4,14 @@ template <class T>
 class REArray
 {
 public:
+
+private:
+  T* pData;
+
+public:
+  size_t size;
+  size_t capacity;
+
   REArray()
   {
     capacity = 4;
@@ -49,10 +57,48 @@ public:
     delete[] pOld;
   }
 
-private:
-  T* pData;
+  int Partition(int aLow, int aHigh)
+  {
+    const T& pivot = pData[aLow];
+    int i = aLow;
+    int j = aHigh;
 
-public:
-  size_t size;
-  size_t capacity;
+    while (i < j)
+    {
+      do
+      {
+        i++;
+      } while (pData[i] <= pivot);
+
+      do
+      {
+        j--;
+      } while (pData[j] > pivot);
+
+      if (i < j)
+        std::swap(pData[i], pData[j]);
+    }
+
+    std::swap(pData[aLow], pData[j]);
+
+    return j;
+  }
+
+  void QuickSort()
+  {
+    QuickSort(0, size);
+  }
+
+  void QuickSort(int aLowest, int aHighest)
+  {
+    if (!std::is_trivial<T>())
+      return;
+
+    if (aLowest < aHighest)
+    {
+      int j = Partition(aLowest, aHighest);
+      QuickSort(aLowest, j);
+      QuickSort(j + 1, aHighest);
+    }
+  }
 };
