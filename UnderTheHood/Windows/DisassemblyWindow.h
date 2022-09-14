@@ -30,7 +30,7 @@ private:
 
   std::string BuildInstructionString(const cs_insn& apInstruction);
 
-  void RenderDisassemblyModal(const Disassembly::Function& acFunction);
+  void RenderDisassemblyModal(Disassembly::Function& aFunction);
 
   void Save() const;
   void Load();

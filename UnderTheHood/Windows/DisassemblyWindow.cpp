@@ -65,73 +65,87 @@ void DisassemblyWindow::Update()
   ImGui::End();
 }
 
-void DisassemblyWindow::RenderDisassemblyModal(const Disassembly::Function& acFunction)
+void DisassemblyWindow::RenderDisassemblyModal(Disassembly::Function& aFunction)
 {
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
   ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
   bool drawNewFunction = false;
 
-  if (ImGui::BeginPopupModal(acFunction.name.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
+  if (ImGui::BeginPopupModal(aFunction.name.c_str(), NULL, ImGuiWindowFlags_AlwaysAutoResize))
   {
-    for (const cs_insn& instruction : acFunction.instructions)
+    if (ImGui::CollapsingHeader("Configuration"))
     {
-      std::string instructionString = BuildInstructionString(instruction);
-      ImGui::Text(instructionString.c_str());
-      if (ImGui::BeginPopupContextItem(instructionString.c_str()))
+      static char newName[0xFF]{};
+      ImGui::InputText("New name", newName, std::size(newName));
+
+      if (ImGui::Button("Rename"))
       {
-        if (ImGui::Selectable("Copy instruction"))
-        {
-          ImGui::LogToClipboard();
-          ImGui::LogText(instructionString.c_str());
-          ImGui::LogFinish();
-        }
-
-        bool isCall = instruction.id == X86_INS_CALL;
-        if (!isCall)
-          ImGui::BeginDisabled();
-
-        if (ImGui::Selectable("Go to function"))
-        {
-          // TODO: you should really make use of the detail struct of capstone
-          // or, again, make your own instruction interface, since detail is allocated and that gets messy
-          std::stringstream ss;
-          ss << std::hex << instruction.op_str;
-          uint64_t target = 0;
-          ss >> target;
-
-          if (target)
-          {
-            auto newFunctionIt = functions.find(target);
-
-            if (newFunctionIt == functions.end())
-              spdlog::error("Could not find function with address {:x}", target);
-            else
-            {
-              modalFunction = newFunctionIt->second;
-              drawNewFunction = true;
-            }
-          }
-        }
-
-        if (!isCall)
-          ImGui::EndDisabled();
-
-        ImGui::EndPopup();
+        if (newName[0] != '\0')
+          aFunction.name = newName;
       }
-
-      if (drawNewFunction)
-        break;
     }
 
     if (ImGui::Button("Close"))
     {
-        ImGui::CloseCurrentPopup();
-        modalFunction = Disassembly::Function{};
+      ImGui::CloseCurrentPopup();
+      modalFunction = Disassembly::Function{};
+    }
+    else
+    {
+      for (const cs_insn& instruction : aFunction.instructions)
+      {
+        std::string instructionString = BuildInstructionString(instruction);
+        ImGui::Text(instructionString.c_str());
+        if (ImGui::BeginPopupContextItem(instructionString.c_str()))
+        {
+          if (ImGui::Selectable("Copy instruction"))
+          {
+            ImGui::LogToClipboard();
+            ImGui::LogText(instructionString.c_str());
+            ImGui::LogFinish();
+          }
+
+          bool isCall = instruction.id == X86_INS_CALL;
+          if (!isCall)
+            ImGui::BeginDisabled();
+
+          if (ImGui::Selectable("Go to function"))
+          {
+            // TODO: you should really make use of the detail struct of capstone
+            // or, again, make your own instruction interface, since detail is allocated and that gets messy
+            std::stringstream ss;
+            ss << std::hex << instruction.op_str;
+            uint64_t target = 0;
+            ss >> target;
+
+            if (target)
+            {
+              auto newFunctionIt = functions.find(target);
+
+              if (newFunctionIt == functions.end())
+                spdlog::error("Could not find function with address {:x}", target);
+              else
+              {
+                modalFunction = newFunctionIt->second;
+                drawNewFunction = true;
+              }
+            }
+          }
+
+          if (!isCall)
+            ImGui::EndDisabled();
+
+          ImGui::EndPopup();
+        }
+
+        if (drawNewFunction)
+          break;
+      }
     }
 
     if (drawNewFunction)
-        ImGui::CloseCurrentPopup();
+      ImGui::CloseCurrentPopup();
 
     ImGui::EndPopup();
   }
