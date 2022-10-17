@@ -35,7 +35,7 @@ private:
 
   bool isLoaded{};
   Processes processes{};
-  int processID{};
+  int currentProcess{};
   Debugger debugger{};
   UIError currentUIError{ UIError::kNone };
 };

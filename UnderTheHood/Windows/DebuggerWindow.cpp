@@ -26,18 +26,21 @@ void DebuggerWindow::Update()
   if (ImGui::Button("Refresh list of processes"))
     InitListOfProcesses();
 
-  for (const auto& process : processes)
+  if (!processes.empty())
   {
-    if (ImGui::Selectable(process.second.c_str()))
-    {
-      processID = process.first;
-    }
-  }
+    std::unique_ptr<const char* []> items = std::make_unique<const char* []>(processes.size());
+    for (int i = 0; i < processes.size(); i++)
+      items[i] = processes[i].second.c_str();
 
-  if (ImGui::Button("Debug"))
-  {
-    debugger.AttachDebugger(processID);
-    spdlog::info("Debugging");
+    ImGui::PushItemWidth(-1);
+    ImGui::ListBox("Processes", &currentProcess, items.get(), processes.size(), 20);
+    ImGui::PopItemWidth();
+
+    if (ImGui::Button("Debug"))
+    {
+      debugger.AttachDebugger(processes[currentProcess].first);
+      spdlog::info("Debugging");
+    }
   }
 
   ImGui::End();
@@ -57,6 +60,7 @@ void DebuggerWindow::OnClose(const Event& aEvent)
 
   isLoaded = false;
   processes.clear();
+  currentProcess = 1;
 }
 
 void DebuggerWindow::RenderError()
@@ -92,9 +96,15 @@ void DebuggerWindow::RenderProcessListError()
 
 void DebuggerWindow::InitListOfProcesses()
 {
+  currentProcess = 1;
+
   auto result = GetListOfProcesses();
   if (!result)
     currentUIError = UIError::kProcessListingFailed;
   else
+  {
     processes = *result;
+    for (auto& process : processes)
+      process.second = fmt::format("{} {}", process.first, process.second);
+  }
 }

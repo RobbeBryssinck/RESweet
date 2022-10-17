@@ -14,8 +14,8 @@ void MenuWindow::Setup()
 
 void MenuWindow::Update()
 {
-  static bool show = false;
-  //ImGui::ShowDemoWindow(&show);
+  static bool show = true;
+  ImGui::ShowDemoWindow(&show);
 
   ImGui::Begin("Menu");
 
