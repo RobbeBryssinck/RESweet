@@ -122,5 +122,5 @@ public:
   }
 
 private:
-  std::unordered_map<Event::Type, std::vector<Execution>> observers;
+  std::unordered_map<Event::Type, std::vector<Execution>> observers{};
 };

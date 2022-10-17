@@ -12,6 +12,7 @@
 #include "Windows/DisassemblyWindow.h"
 #include "Windows/StringsWindow.h"
 #include "Windows/MenuWindow.h"
+#include "Windows/DebuggerWindow.h"
 
 void InitializeLogger()
 {
@@ -36,6 +37,9 @@ int main(int argc, char* argv[])
 
   StringsWindow stringsWindow{};
   application.AddWindow(&stringsWindow);
+
+  DebuggerWindow debuggerWindow{};
+  application.AddWindow(&debuggerWindow);
 
   application.Run();
 
