@@ -26,7 +26,7 @@ void DebuggerWindow::Update()
   if (ImGui::Button("Refresh list of processes"))
     InitListOfProcesses();
 
-  if (!processes.empty())
+  if (!processes.empty() && !isDebugging)
   {
     std::unique_ptr<const char* []> items = std::make_unique<const char* []>(processes.size());
     for (int i = 0; i < processes.size(); i++)
@@ -37,10 +37,12 @@ void DebuggerWindow::Update()
     ImGui::PopItemWidth();
 
     if (ImGui::Button("Debug"))
-    {
-      debugger.AttachDebugger(processes[currentProcess].first);
-      spdlog::info("Debugging");
-    }
+      isDebugging = debugger.AttachDebugger(processes[currentProcess].first);
+  }
+  else if (isDebugging)
+  {
+    const auto isDebugging = fmt::format("Is debugging? {}", debugger.IsDebugging());
+    ImGui::Text(isDebugging.c_str());
   }
 
   ImGui::End();
@@ -61,6 +63,7 @@ void DebuggerWindow::OnClose(const Event& aEvent)
   isLoaded = false;
   processes.clear();
   currentProcess = 1;
+  isDebugging = false;
 }
 
 void DebuggerWindow::RenderError()

@@ -37,6 +37,7 @@ private:
   Processes processes{};
   int currentProcess{};
   Debugger debugger{};
+  bool isDebugging{};
   UIError currentUIError{ UIError::kNone };
 };
 
