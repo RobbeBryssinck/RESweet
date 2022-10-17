@@ -14,69 +14,85 @@ void MenuWindow::Setup()
 
 void MenuWindow::Update()
 {
-  static bool show = true;
-  ImGui::ShowDemoWindow(&show);
+  static bool s_imguiDemo = false;
 
-  ImGui::Begin("Menu");
+  ImGui::BeginMainMenuBar();
 
-  if (ImGui::Button("Open new file"))
+  if (ImGui::BeginMenu("Files"))
   {
-    openedFile = OpenFileDialogue();
-    Application::Get().GetDispatcher().Dispatch(OpenFileEvent(openedFile));
-  }
-
-  ImGui::Separator();
-
-  if (ImGui::Button("Load"))
-  {
-    FileFilters filters{ {"RESweet save file", "*.resf"} };
-    const std::string dialogueTitle = "Open RESweet save file";
-    const std::string filename = OpenFileDialogue(&dialogueTitle, &filters);
-
-    SaveManager& saveManager = Application::Get().GetSaveManager();
-
-    Reader reader{};
-    if (!reader.LoadFromFile(filename))
-      spdlog::error("Failed to load buffer from file.");
-    else
+    if (ImGui::Button("Open new file"))
     {
-      saveManager.resf.Deserialize(reader);
-
-      openedFile = saveManager.resf.header.filename;
-
-      Application::Get().GetDispatcher().Dispatch(LoadEvent());
+      openedFile = OpenFileDialogue();
+      Application::Get().GetDispatcher().Dispatch(OpenFileEvent(openedFile));
     }
+
+    if (ImGui::Button("Load"))
+    {
+      FileFilters filters{ {"RESweet save file", "*.resf"} };
+      const std::string dialogueTitle = "Open RESweet save file";
+      const std::string filename = OpenFileDialogue(&dialogueTitle, &filters);
+
+      SaveManager& saveManager = Application::Get().GetSaveManager();
+
+      Reader reader{};
+      if (!reader.LoadFromFile(filename))
+        spdlog::error("Failed to load buffer from file.");
+      else
+      {
+        saveManager.resf.Deserialize(reader);
+
+        openedFile = saveManager.resf.header.filename;
+
+        Application::Get().GetDispatcher().Dispatch(LoadEvent());
+      }
+    }
+
+    if (ImGui::Button("Save"))
+    {
+      Application::Get().GetDispatcher().Dispatch(SaveEvent());
+
+      SaveManager& saveManager = Application::Get().GetSaveManager();
+
+      saveManager.resf.header.filename = openedFile;
+      saveManager.SetFilePath(openedFile);
+
+      bool saveResult = saveManager.Save();
+      spdlog::info("Save succeeded? {}", saveResult);
+    }
+
+    if (ImGui::Button("Close session"))
+    {
+      openedFile = "";
+      Application::Get().GetDispatcher().Dispatch(CloseEvent());
+    }
+
+    if (ImGui::Button("Exit"))
+      Application::Get().GetDispatcher().Dispatch(ExitEvent());
+
+    ImGui::EndMenu();
   }
 
-  ImGui::SameLine();
-
-  if (ImGui::Button("Save"))
+  if (ImGui::BeginMenu("Views"))
   {
-    Application::Get().GetDispatcher().Dispatch(SaveEvent());
+    ImGui::Checkbox("ImGui demo", &s_imguiDemo);
 
-    SaveManager& saveManager = Application::Get().GetSaveManager();
-
-    saveManager.resf.header.filename = openedFile;
-    saveManager.SetFilePath(openedFile);
-
-    bool saveResult = saveManager.Save();
-    spdlog::info("Save succeeded? {}", saveResult);
+    ImGui::EndMenu();
   }
 
-  ImGui::Separator();
-
-  if (ImGui::Button("Close session"))
+  if (ImGui::BeginMenu("Debugging"))
   {
-    openedFile = "";
-    Application::Get().GetDispatcher().Dispatch(CloseEvent());
+    if (ImGui::Button("Attach to process..."))
+    {
+      // TODO: open modal
+    }
+
+    ImGui::EndMenu();
   }
 
-  ImGui::SameLine();
+  ImGui::EndMainMenuBar();
 
-  if (ImGui::Button("Exit"))
-    Application::Get().GetDispatcher().Dispatch(ExitEvent());
-
-  ImGui::End();
+  if (s_imguiDemo)
+    ImGui::ShowDemoWindow(&s_imguiDemo);
 }
 
 void MenuWindow::OnTestEvent(const Event& aEvent)
