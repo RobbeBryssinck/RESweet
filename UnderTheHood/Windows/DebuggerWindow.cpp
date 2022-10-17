@@ -60,10 +60,7 @@ void DebuggerWindow::OnClose(const Event& aEvent)
 {
   RE_ASSERT(aEvent.GetType() == Event::Type::kClose);
 
-  isLoaded = false;
-  processes.clear();
-  currentProcess = 1;
-  isDebugging = false;
+  Destroy();
 }
 
 void DebuggerWindow::RenderError()
@@ -110,4 +107,12 @@ void DebuggerWindow::InitListOfProcesses()
     for (auto& process : processes)
       process.second = fmt::format("{} {}", process.first, process.second);
   }
+}
+
+void DebuggerWindow::Destroy()
+{
+  isLoaded = false;
+  processes.clear();
+  currentProcess = 1;
+  isDebugging = false;
 }

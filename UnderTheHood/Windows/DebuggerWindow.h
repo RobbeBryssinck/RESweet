@@ -33,6 +33,8 @@ private:
 
   void InitListOfProcesses();
 
+  void Destroy();
+
   bool isLoaded{};
   Processes processes{};
   int currentProcess{};
