@@ -8,4 +8,8 @@ public:
   virtual ~Window() {};
   virtual void Setup() {};
   virtual void Update() {};
+  virtual void SetShown(bool aShow) { shown = aShow; }
+
+protected:
+  bool shown{ true };
 };

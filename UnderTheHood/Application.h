@@ -25,6 +25,16 @@ public:
   void Run();
 
   void OnExit(const Event& aEvent);
+
+  template <class T>
+  void ShowOrHideWindow(bool aShow)
+  {
+    for (auto* pWindow : windows)
+    {
+      if (dynamic_cast<T*>(pWindow))
+        pWindow->SetShown(aShow);
+    }
+  }
   
 private:
   static Application* s_application;

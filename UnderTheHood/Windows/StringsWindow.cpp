@@ -18,7 +18,7 @@ void StringsWindow::Setup()
 
 void StringsWindow::Update()
 {
-  if (!IsLoaded())
+  if (!IsLoaded() || !shown)
     return;
 
   ImGui::Begin("Strings");

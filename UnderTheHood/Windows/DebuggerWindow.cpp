@@ -12,11 +12,13 @@ void DebuggerWindow::Setup()
   Application::Get().GetDispatcher().Subscribe(Event::Type::kOpenFile, std::bind(&DebuggerWindow::OnOpen, this, std::placeholders::_1));
   Application::Get().GetDispatcher().Subscribe(Event::Type::kLoad, std::bind(&DebuggerWindow::OnOpen, this, std::placeholders::_1));
   Application::Get().GetDispatcher().Subscribe(Event::Type::kClose, std::bind(&DebuggerWindow::OnClose, this, std::placeholders::_1));
+
+  shown = false;
 }
 
 void DebuggerWindow::Update()
 {
-  if (!isLoaded)
+  if (!shown)
     return;
 
   ImGui::Begin("Debugger");
@@ -48,11 +50,18 @@ void DebuggerWindow::Update()
   ImGui::End();
 }
 
+void DebuggerWindow::SetShown(bool aShow)
+{
+  Window::SetShown(aShow);
+
+  Destroy();
+  InitListOfProcesses();
+}
+
 void DebuggerWindow::OnOpen(const Event& aEvent)
 {
   RE_ASSERT(aEvent.GetType() == Event::Type::kOpenFile || aEvent.GetType() == Event::Type::kLoad);
 
-  isLoaded = true;
   InitListOfProcesses();
 }
 
@@ -111,8 +120,7 @@ void DebuggerWindow::InitListOfProcesses()
 
 void DebuggerWindow::Destroy()
 {
-  isLoaded = false;
   processes.clear();
-  currentProcess = 1;
+  currentProcess = 0;
   isDebugging = false;
 }

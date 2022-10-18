@@ -27,7 +27,7 @@ void DisassemblyWindow::Setup()
 
 void DisassemblyWindow::Update()
 {
-  if (!IsLoaded())
+  if (!IsLoaded() || !shown)
     return;
 
   ImGui::Begin("Disassembly");
