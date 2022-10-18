@@ -7,8 +7,14 @@
 
 #include <vector>
 
+#ifdef _WIN32
 #define RE_ASSERT(x) if (!(x)) \
+  spdlog::error("Assert failed"); \
   DebugBreak();
+#else
+#define RE_ASSERT(x) (x) \
+  spdlog::error("Assert failed");
+#endif
 
 class Application
 {
@@ -18,7 +24,7 @@ public:
   [[nodiscard]] static Application& Get() { return *s_application; }
 
   [[nodiscard]] EventDispatcher& GetDispatcher() { return dispatcher; }
-  [[nodiscard]] SaveManager& GetSaveManager() { return saveManager; }
+  [[nodiscard]] SaveLoadManager& GetSaveLoadManager() { return saveLoadManager; }
 
   void AddWindow(Window* apWindow);
 
@@ -35,5 +41,5 @@ private:
 
   bool isRunning = true;
 
-  SaveManager saveManager{};
+  SaveLoadManager saveLoadManager{};
 };

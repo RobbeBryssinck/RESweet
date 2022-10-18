@@ -80,18 +80,18 @@ void StringsWindow::OnClose(const Event& aEvent)
 
 void StringsWindow::Save() const
 {
-  SaveManager& saveManager = Application::Get().GetSaveManager();
+  SaveLoadManager& saveLoadManager = Application::Get().GetSaveLoadManager();
 
-  saveManager.resf.strings = strings;
+  saveLoadManager.resf.strings = strings;
 
-  saveManager.isStringsReady = true;
+  saveLoadManager.isStringsReady = true;
 }
 
 void StringsWindow::Load()
 {
-  SaveManager& saveManager = Application::Get().GetSaveManager();
+  SaveLoadManager& saveLoadManager = Application::Get().GetSaveLoadManager();
 
-  strings = saveManager.resf.strings;
+  strings = saveLoadManager.resf.strings;
 }
 
 void StringsWindow::Destroy()

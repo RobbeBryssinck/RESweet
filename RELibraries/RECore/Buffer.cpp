@@ -1,4 +1,5 @@
 #include "Buffer.h"
+#include <cstring>
 
 Buffer::Buffer(Buffer&& aBuffer) noexcept
 {

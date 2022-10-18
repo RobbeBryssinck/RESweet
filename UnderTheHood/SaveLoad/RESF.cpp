@@ -2,7 +2,7 @@
 
 #include "../Application.h"
 
-bool SaveManager::Save()
+bool SaveLoadManager::Save()
 {
   if (!IsReadyToSave())
     return false;
