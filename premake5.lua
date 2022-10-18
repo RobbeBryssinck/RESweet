@@ -4,12 +4,9 @@ workspace "RESweet"
    architecture "x64"
    configurations { "Debug", "Release" }
 
-   filter "system:windows"
-      defines { "NOMINMAX" }
-      cppdialect "C++20"
+   cppdialect "C++20"
 
-   filter "system:linux"
-      cppdialect "C++2a"
+   defines { "NOMINMAX" }
 
    filter { "configurations:Debug" }
       defines { "DEBUG" }

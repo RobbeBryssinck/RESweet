@@ -8,9 +8,9 @@ project "ImGuiImpl"
    {
       "../../Vendor/imgui",
       "../../Vendor/spdlog/include",
-      "../../Vendor/glfw/include"
+      "../../Vendor/GLFW/include"
    }
 
    links "imgui"
-   links "glfw"
+   links "GLFW"
    links "opengl32.lib"
