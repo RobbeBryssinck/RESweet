@@ -47,8 +47,13 @@ void AttacherWindow::Update()
   }
   else if (isDebugging)
   {
-    const auto isDebugging = fmt::format("Is debugging? {}", debugger.IsDebugging());
-    ImGui::Text(isDebugging.c_str());
+    ImGui::Text("Process is being debugged.");
+    if (ImGui::Button("Stop debugging"))
+    {
+      debugger.StopDebugging();
+      Destroy();
+      InitListOfProcesses();
+    }
   }
 
   ImGui::End();
