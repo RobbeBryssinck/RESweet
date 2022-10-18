@@ -83,9 +83,7 @@ void MenuWindow::Update()
   if (ImGui::BeginMenu("Debugging"))
   {
     if (ImGui::Button("Attach to process..."))
-    {
-      Application::Get().ShowOrHideWindow<DebuggerWindow>(true);
-    }
+      Application::Get().ToggleWindowShown<DebuggerWindow>();
 
     ImGui::EndMenu();
   }

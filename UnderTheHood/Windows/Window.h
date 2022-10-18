@@ -10,6 +10,11 @@ public:
   virtual void Update() {};
   virtual void SetShown(bool aShow) { shown = aShow; }
 
+  void ToggleWindowShown()
+  {
+    SetShown(!shown);
+  }
+
 protected:
   bool shown{ true };
 };

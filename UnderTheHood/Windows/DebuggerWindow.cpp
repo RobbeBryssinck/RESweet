@@ -21,7 +21,11 @@ void DebuggerWindow::Update()
   if (!shown)
     return;
 
-  ImGui::Begin("Debugger");
+  if (!ImGui::Begin("Debugger", &shown))
+  {
+    ImGui::End();
+    return;
+  }
 
   RenderError();
 
@@ -52,6 +56,8 @@ void DebuggerWindow::Update()
 
 void DebuggerWindow::SetShown(bool aShow)
 {
+  spdlog::info("DebuggerWindow::SetShown");
+
   Window::SetShown(aShow);
 
   Destroy();
@@ -105,7 +111,7 @@ void DebuggerWindow::RenderProcessListError()
 
 void DebuggerWindow::InitListOfProcesses()
 {
-  currentProcess = 1;
+  currentProcess = 0;
 
   auto result = GetListOfProcesses();
   if (!result)

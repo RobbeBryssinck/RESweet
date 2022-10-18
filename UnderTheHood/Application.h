@@ -27,6 +27,16 @@ public:
   void OnExit(const Event& aEvent);
 
   template <class T>
+  void ToggleWindowShown()
+  {
+    for (auto* pWindow : windows)
+    {
+      if (dynamic_cast<T*>(pWindow))
+        pWindow->ToggleWindowShown();
+    }
+  }
+
+  template <class T>
   void ShowOrHideWindow(bool aShow)
   {
     for (auto* pWindow : windows)
