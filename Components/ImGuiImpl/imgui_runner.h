@@ -1,14 +1,14 @@
 #pragma once
 
+#include <windows.h>
+#include <WinUser.h>
 #include <string>
 #include <functional>
-
-struct GLFWwindow;
 
 class imgui_runner
 {
 public:
-  imgui_runner(const std::string& aName);
+  imgui_runner(const std::string& acName);
   ~imgui_runner();
   imgui_runner(const imgui_runner&) = default;
   imgui_runner& operator=(const imgui_runner&) = default;
@@ -17,5 +17,6 @@ public:
   void EndFrame();
 
 private:
-  GLFWwindow* window{};
+  HWND hwnd;
+  WNDCLASSEX wc;
 };
