@@ -1,5 +1,3 @@
 group("Vendor")
 include("imgui")
 include("googletest")
-include("glfw")
-include("glad")

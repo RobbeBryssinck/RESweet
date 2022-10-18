@@ -7,10 +7,7 @@ project "ImGuiImpl"
    includedirs 
    {
       "../../Vendor/imgui",
-      "../../Vendor/spdlog/include",
-      "../../Vendor/glfw/include"
+      "../../Vendor/spdlog/include"
    }
 
    links "imgui"
-   links "glfw"
-   links "opengl32.lib"

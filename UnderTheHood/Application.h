@@ -7,16 +7,8 @@
 
 #include <vector>
 
-#ifdef _WIN32
 #define RE_ASSERT(x) if (!(x)) \
-{ \
-  spdlog::error("Assert failed"); \
-  DebugBreak(); \
-}
-#else
-#define RE_ASSERT(x) (x) \
-  spdlog::error("Assert failed");
-#endif
+  DebugBreak();
 
 class Application
 {
