@@ -9,8 +9,10 @@
 
 #ifdef _WIN32
 #define RE_ASSERT(x) if (!(x)) \
+{ \
   spdlog::error("Assert failed"); \
-  DebugBreak();
+  DebugBreak(); \
+}
 #else
 #define RE_ASSERT(x) (x) \
   spdlog::error("Assert failed");
