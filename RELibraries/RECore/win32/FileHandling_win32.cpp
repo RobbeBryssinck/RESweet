@@ -1,6 +1,6 @@
 #include "../FileHandling.h"
 
-// TODO: ifdef WIN32
+#include "../StringConverter.h"
 
 #include <Windows.h>
 #include <ShObjIdl.h>
@@ -19,15 +19,13 @@ std::string OpenFileDialogue(const std::string* apcDialogueName, FileFilters* ap
   {
     pFilters = std::make_unique<COMDLG_FILTERSPEC[]>(apcFilters->size());
 
-    // TODO: replace with RECore::StringConverter::ToWide()
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
     for (size_t i = 0; i < apcFilters->size(); i++)
     {
       auto& filter = (*apcFilters)[i];
       auto& wideFilter = wideFilters.emplace_back();
 
-      wideFilter.first = converter.from_bytes(filter.first);
-      wideFilter.second = converter.from_bytes(filter.second);
+      wideFilter.first = StringConverter::ToWide(filter.first);
+      wideFilter.second = StringConverter::ToWide(filter.second);
 
       pFilters[i] = COMDLG_FILTERSPEC{wideFilter.first.c_str(), wideFilter.second.c_str()};
     }
