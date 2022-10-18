@@ -1,7 +1,7 @@
 #include "MenuWindow.h"
 
 #include "../Application.h"
-#include "DebuggerWindow.h"
+#include "AttacherWindow.h"
 
 #include <FileHandling.h>
 
@@ -83,7 +83,7 @@ void MenuWindow::Update()
   if (ImGui::BeginMenu("Debugging"))
   {
     if (ImGui::Button("Attach to process..."))
-      Application::Get().ToggleWindowShown<DebuggerWindow>();
+      Application::Get().ToggleWindowShown<AttacherWindow>();
 
     ImGui::EndMenu();
   }

@@ -1,4 +1,4 @@
-#include "DebuggerWindow.h"
+#include "AttacherWindow.h"
 
 #include "../Application.h"
 
@@ -7,16 +7,16 @@
 
 #include <Processes.h>
 
-void DebuggerWindow::Setup()
+void AttacherWindow::Setup()
 {
-  Application::Get().GetDispatcher().Subscribe(Event::Type::kOpenFile, std::bind(&DebuggerWindow::OnOpen, this, std::placeholders::_1));
-  Application::Get().GetDispatcher().Subscribe(Event::Type::kLoad, std::bind(&DebuggerWindow::OnOpen, this, std::placeholders::_1));
-  Application::Get().GetDispatcher().Subscribe(Event::Type::kClose, std::bind(&DebuggerWindow::OnClose, this, std::placeholders::_1));
+  Application::Get().GetDispatcher().Subscribe(Event::Type::kOpenFile, std::bind(&AttacherWindow::OnOpen, this, std::placeholders::_1));
+  Application::Get().GetDispatcher().Subscribe(Event::Type::kLoad, std::bind(&AttacherWindow::OnOpen, this, std::placeholders::_1));
+  Application::Get().GetDispatcher().Subscribe(Event::Type::kClose, std::bind(&AttacherWindow::OnClose, this, std::placeholders::_1));
 
   shown = false;
 }
 
-void DebuggerWindow::Update()
+void AttacherWindow::Update()
 {
   if (!shown)
     return;
@@ -54,31 +54,29 @@ void DebuggerWindow::Update()
   ImGui::End();
 }
 
-void DebuggerWindow::SetShown(bool aShow)
+void AttacherWindow::SetShown(bool aShow)
 {
-  spdlog::info("DebuggerWindow::SetShown");
-
   Window::SetShown(aShow);
 
   Destroy();
   InitListOfProcesses();
 }
 
-void DebuggerWindow::OnOpen(const Event& aEvent)
+void AttacherWindow::OnOpen(const Event& aEvent)
 {
   RE_ASSERT(aEvent.GetType() == Event::Type::kOpenFile || aEvent.GetType() == Event::Type::kLoad);
 
   InitListOfProcesses();
 }
 
-void DebuggerWindow::OnClose(const Event& aEvent)
+void AttacherWindow::OnClose(const Event& aEvent)
 {
   RE_ASSERT(aEvent.GetType() == Event::Type::kClose);
 
   Destroy();
 }
 
-void DebuggerWindow::RenderError()
+void AttacherWindow::RenderError()
 {
   switch (currentUIError)
   {
@@ -90,7 +88,7 @@ void DebuggerWindow::RenderError()
   }
 }
 
-void DebuggerWindow::RenderProcessListError()
+void AttacherWindow::RenderProcessListError()
 {
   ImVec2 center = ImGui::GetMainViewport()->GetCenter();
   ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
@@ -109,7 +107,7 @@ void DebuggerWindow::RenderProcessListError()
   }
 }
 
-void DebuggerWindow::InitListOfProcesses()
+void AttacherWindow::InitListOfProcesses()
 {
   currentProcess = 0;
 
@@ -124,7 +122,7 @@ void DebuggerWindow::InitListOfProcesses()
   }
 }
 
-void DebuggerWindow::Destroy()
+void AttacherWindow::Destroy()
 {
   processes.clear();
   currentProcess = 0;

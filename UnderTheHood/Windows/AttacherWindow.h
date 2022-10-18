@@ -10,7 +10,7 @@
 #include <vector>
 #include <string>
 
-class DebuggerWindow final : public Window
+class AttacherWindow final : public Window
 {
 public:
   virtual void Setup() override;
