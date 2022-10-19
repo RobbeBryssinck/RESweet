@@ -16,7 +16,7 @@ bool Debugger::AttachDebugger(int aProcessID)
 
   if (result)
   {
-    std::scoped_lock guard(debugMtx);
+    std::scoped_lock _(debugMtx);
     processID = aProcessID;
   }
 
@@ -28,7 +28,7 @@ bool Debugger::StopDebugging()
   BOOL result = DebugActiveProcessStop(processID);
 
   {
-    std::scoped_lock guard(debugMtx);
+    std::scoped_lock _(debugMtx);
     processID = 0;
   }
 

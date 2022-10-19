@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <mutex>
 
 class Event
 {
@@ -113,6 +114,7 @@ public:
   template <class T>
   void Dispatch(const T& aEvent) const
   {
+    std::scoped_lock _(dispatcherMtx);
     auto subscription = observers.find(aEvent.GetType());
     if (subscription == observers.end())
       return;
@@ -122,5 +124,6 @@ public:
   }
 
 private:
+  std::mutex dispatcherMtx{};
   std::unordered_map<Event::Type, std::vector<Execution>> observers{};
 };
