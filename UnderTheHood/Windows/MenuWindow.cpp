@@ -85,6 +85,9 @@ void MenuWindow::Update()
     if (ImGui::Button("Attach to process..."))
       Application::Get().ToggleWindowShown<AttacherWindow>();
 
+    if (ImGui::Button("Test"))
+      Application::Get().GetDispatcher().Enqueue(TestEvent());
+
     ImGui::EndMenu();
   }
 

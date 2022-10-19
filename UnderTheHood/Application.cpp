@@ -27,6 +27,8 @@ void Application::Run()
 
   while (isRunning)
   {
+    GetDispatcher().ClearAndDispatchQueue();
+
     if (!uiRunner.BeginFrame())
       break;
 

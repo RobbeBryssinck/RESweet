@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <mutex>
+#include <queue>
 
 class Event
 {
@@ -110,9 +111,10 @@ public:
   using Execution = std::function<void(const Event&)>;
 
   void Subscribe(const Event::Type& aEventType, Execution&& aExecution);
+  void ClearAndDispatchQueue();
 
   template <class T>
-  void Dispatch(const T& aEvent) const
+  void Dispatch(const T& aEvent)
   {
     std::scoped_lock _(dispatcherMtx);
     auto subscription = observers.find(aEvent.GetType());
@@ -123,7 +125,17 @@ public:
       executor(aEvent);
   }
 
+  template <class T>
+  void Enqueue(const T& aEvent)
+  {
+    std::scoped_lock _(dispatcherMtx);
+    taskQueue.push([event = std::move(aEvent), this]() {
+      Dispatch(event);
+    });
+  }
+
 private:
-  std::mutex dispatcherMtx{};
+  std::recursive_mutex dispatcherMtx{};
   std::unordered_map<Event::Type, std::vector<Execution>> observers{};
+  std::queue<std::function<void()>> taskQueue{};
 };
