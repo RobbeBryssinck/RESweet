@@ -2,18 +2,36 @@
 
 #include <processthreadsapi.h>
 #include <debugapi.h>
+#include <chrono>
+
+Debugger::Debugger()
+  : debugThread(std::thread(&Debugger::DebugLoop, this))
+{
+}
 
 bool Debugger::AttachDebugger(int aProcessID)
 {
-  processID = aProcessID;
+  // TODO: error handling
+  BOOL result = DebugActiveProcess(aProcessID);
 
-  return DebugActiveProcess(processID);
+  if (result)
+  {
+    std::scoped_lock guard(debugMtx);
+    processID = aProcessID;
+  }
+
+  return result;
 }
 
 bool Debugger::StopDebugging()
 {
   BOOL result = DebugActiveProcessStop(processID);
-  processID = 0;
+
+  {
+    std::scoped_lock guard(debugMtx);
+    processID = 0;
+  }
+
   return result;
 }
 
@@ -57,18 +75,29 @@ DWORD OnRipEvent(const LPDEBUG_EVENT)
   return DBG_CONTINUE;
 }
 
-void Debugger::DebugLoop(const LPDEBUG_EVENT aDebugEvent)
+void Debugger::DebugLoop()
 {
   DWORD continueStatus = DBG_CONTINUE;
 
+  DEBUG_EVENT debugEvent{};
+
   while (true)
   {
-    WaitForDebugEvent(aDebugEvent, INFINITE);
+    debugMtx.lock();
+    if (!processID)
+    {
+      debugMtx.unlock();
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      continue;
+    }
+    debugMtx.unlock();
 
-    switch (aDebugEvent->dwDebugEventCode)
+    WaitForDebugEvent(&debugEvent, 500);
+
+    switch (debugEvent.dwDebugEventCode)
     {
     case EXCEPTION_DEBUG_EVENT:
-      switch (aDebugEvent->u.Exception.ExceptionRecord.ExceptionCode)
+      switch (debugEvent.u.Exception.ExceptionRecord.ExceptionCode)
       {
       case EXCEPTION_ACCESS_VIOLATION:
         break;
@@ -87,39 +116,39 @@ void Debugger::DebugLoop(const LPDEBUG_EVENT aDebugEvent)
       break;
 
     case CREATE_THREAD_DEBUG_EVENT:
-      continueStatus = OnCreateThreadDebugEvent(aDebugEvent);
+      continueStatus = OnCreateThreadDebugEvent(&debugEvent);
       break;
 
     case CREATE_PROCESS_DEBUG_EVENT:
-      continueStatus = OnCreateProcessDebugEvent(aDebugEvent);
+      continueStatus = OnCreateProcessDebugEvent(&debugEvent);
       break;
 
     case EXIT_THREAD_DEBUG_EVENT:
-      continueStatus = OnExitThreadDebugEvent(aDebugEvent);
+      continueStatus = OnExitThreadDebugEvent(&debugEvent);
       break;
 
     case EXIT_PROCESS_DEBUG_EVENT:
-      continueStatus = OnExitProcessDebugEvent(aDebugEvent);
+      continueStatus = OnExitProcessDebugEvent(&debugEvent);
       break;
 
     case LOAD_DLL_DEBUG_EVENT:
-      continueStatus = OnLoadDllDebugEvent(aDebugEvent);
+      continueStatus = OnLoadDllDebugEvent(&debugEvent);
       break;
 
     case UNLOAD_DLL_DEBUG_EVENT:
-      continueStatus = OnUnloadDllDebugEvent(aDebugEvent);
+      continueStatus = OnUnloadDllDebugEvent(&debugEvent);
       break;
 
     case OUTPUT_DEBUG_STRING_EVENT:
-      continueStatus = OnOutputDebugStringEvent(aDebugEvent);
+      continueStatus = OnOutputDebugStringEvent(&debugEvent);
       break;
 
     case RIP_EVENT:
-      continueStatus = OnRipEvent(aDebugEvent);
+      continueStatus = OnRipEvent(&debugEvent);
       break;
     }
 
-    ContinueDebugEvent(aDebugEvent->dwProcessId, aDebugEvent->dwThreadId, continueStatus);
+    ContinueDebugEvent(debugEvent.dwProcessId, debugEvent.dwThreadId, continueStatus);
   }
 }
 
